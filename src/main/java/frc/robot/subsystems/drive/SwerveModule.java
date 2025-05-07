@@ -158,14 +158,8 @@ public class SwerveModule {
 
         SmartDashboard.putNumber("[Swerve]Setpoint velocity", turningPidController.getSetpoint().velocity);
 
-        if (RobotState.isAutonomous()) {
-            // TODO this is where we stopped we have to think about this
-            driveMotor.set(state.speedMetersPerSecond / SwerveConstants.MaxMetersPersecond);
-            angleMotor.set(turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
-        } else if (RobotState.isTeleop()) {
-            driveMotor.set(state.speedMetersPerSecond);
-            angleMotor.set(turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
-        }
+        driveMotor.set(state.speedMetersPerSecond);
+        angleMotor.set(turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor set " + moduleNumber,
                 state.speedMetersPerSecond / SwerveConstants.MaxMetersPersecond);

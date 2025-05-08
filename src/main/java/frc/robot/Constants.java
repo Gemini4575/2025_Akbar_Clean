@@ -33,19 +33,16 @@ public final class Constants {
         private static final double SWERVE_FROM_CORNER = Units.inchesToMeters(2.61);
         private static final double MODULE_OFFSET_X = ROBOT_WIDTH / 2 - SWERVE_FROM_CORNER;
         private static final double MODULE_OFFSET_Y = ROBOT_LENGTH / 2 - SWERVE_FROM_CORNER;
+
         public static final Translation2d m_backLeftLocation = new Translation2d(-MODULE_OFFSET_X, MODULE_OFFSET_Y);
         public static final Translation2d m_backRightLocation = new Translation2d(-MODULE_OFFSET_X, -MODULE_OFFSET_Y);
         public static final Translation2d m_frontRightLocation = new Translation2d(MODULE_OFFSET_X, -MODULE_OFFSET_Y);
         public static final Translation2d m_frontLeftLocation = new Translation2d(MODULE_OFFSET_X, MODULE_OFFSET_Y);
 
-        public static final double MaxMetersPersecond = 4.47;// 3.264903459; //4.47 This is calculated 5676rpm,
-                                                             // 4in wheels, 6.75 gearbox
+        public static final double MaxMetersPersecond = 4.47;// 3.264903459; //4.47 This is calculated 5676rpm,  4in wheels, 6.75 gearbox
         public static final double kWheelRadius = 0.0508;
-        public static final double kModuleMaxAngularVelocity = 27.73816874; // This is calculated 5676rpm,
-                                                                            // 150/7:1 gearbox in radians.
-                                                                            // 594.380 deg/s in pathplanner
-        public static final double kModuleMaxAngularAcceleration = 18.85;// 4 * Math.PI; // radians per second
-                                                                         // squared
+        public static final double kModuleMaxAngularVelocity = 27.73816874; // This is calculated 5676rpm, 150/7:1 gearbox in radians. 594.380 deg/s in pathplanner
+        public static final double kModuleMaxAngularAcceleration = 18.85;// 4 * Math.PI; // radians per second squared
         public static final double gearboxRatio = 6.75;
 
         public static final double kMaxAceceration = 4.0;

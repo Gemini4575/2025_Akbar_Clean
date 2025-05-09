@@ -24,12 +24,12 @@ import frc.robot.Constants.SwerveConstants;
 public class SwerveModule {
 
     private ProfiledPIDController turningPidController = new ProfiledPIDController(
-            1.0, // Proportional gain
+            16, // Proportional gain
             0.0, // Integral gain
             0.0,
             new TrapezoidProfile.Constraints(
-                    SwerveConstants.kModuleMaxAngularVelocity,
-                    SwerveConstants.kModuleMaxAngularAcceleration));
+                    SwerveConstants.kModuleMaxAngularVelocity / 4.0,
+                    SwerveConstants.kModuleMaxAngularAcceleration / 4.0));
 
     private ProfiledPIDController drivingPidController = new ProfiledPIDController(
             1.0, // Proportional gain
@@ -153,13 +153,17 @@ public class SwerveModule {
         final double driveOutput = drivingPidController.calculate(m_driveEncoder.getVelocity(),
                 state.speedMetersPerSecond);
 
-        final double turnOutput = turningPidController.calculate(encoderValue(), state.angle.getRadians());
+        final double turnOutput = Math
+                .max(Math.min(turningPidController.calculate(encoderValue(), state.angle.getRadians()), 8.1), -8.1);
+        // final double turnOutput = Math.min (Math.max
+        // (turningPidController.calculate(encoderValue(), state.angle.getRadians());
         // SmartDashboard.putNumber("[Swerve]pid " + moduleNumber, turnOutput);
 
         SmartDashboard.putNumber("[Swerve]Setpoint velocity", turningPidController.getSetpoint().velocity);
 
         driveMotor.set(state.speedMetersPerSecond);
-        angleMotor.set(turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
+
+        angleMotor.set((turnOutput / SwerveConstants.kModuleMaxAngularVelocity));
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor set " + moduleNumber,
                 state.speedMetersPerSecond / SwerveConstants.MaxMetersPersecond);

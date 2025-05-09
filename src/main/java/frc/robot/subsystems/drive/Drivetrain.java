@@ -115,9 +115,9 @@ public class Drivetrain extends SubsystemBase {
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(-1 * xSpeed, ySpeed, rot, gyro.getRotation2d())
             : new ChassisSpeeds(xSpeed, ySpeed, rot));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MaxMetersPersecond);
 
-    SmartDashboard.putString("[Drivetrain]gyro", m_gyro.getRotation2d().toString());
+    SmartDashboard.putString("[Drivetrain]gyro", gyro.getRotation2d().toString());
     SmartDashboard.putString("[Drivetrain]module 0", swerveModuleStates[0].toString());
     SmartDashboard.putString("[Drivetrain]module 1", swerveModuleStates[1].toString());
     SmartDashboard.putString("[Drivetrain]module 2", swerveModuleStates[2].toString());
@@ -127,10 +127,11 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private void setModuleStates(SwerveModuleState[] swerveModuleStates) {
-    m_backLeft_0.setDesiredState(swerveModuleStates[0]);
-    m_frontLeft_1.setDesiredState(swerveModuleStates[1]);
-    m_frontRight_2.setDesiredState(swerveModuleStates[2]);
-    m_backRight_3.setDesiredState(swerveModuleStates[3]);
+    backLeft_0.SetDesiredState(swerveModuleStates[0]);
+    backRight_1.SetDesiredState(swerveModuleStates[1]);
+    frontRight_2.SetDesiredState(swerveModuleStates[2]);
+    frontLeft_3.SetDesiredState(swerveModuleStates[3]);
+
   }
 
   // public void configureAutoBuilder() {

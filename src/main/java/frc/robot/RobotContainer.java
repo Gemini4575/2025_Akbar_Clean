@@ -4,9 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.TeleopSwerve;
+import frc.robot.subsystems.drive.Drivetrain;
+
+import static frc.robot.Constants.JoystickConstants.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -19,30 +25,23 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
+  Joystick driver = new Joystick(0);
+
+  /* Subsystems */
+  private final Drivetrain m_drivetrain = new Drivetrain();
+
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link
-   * CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureBindings() {
-
+    m_drivetrain.setDefaultCommand(
+        new TeleopSwerve(
+            m_drivetrain,
+            () -> -driver.getRawAxis(LEFT_X_AXIS),
+            () -> driver.getRawAxis(LEFT_Y_AXIS),
+            () -> -driver.getTwist()));
   }
 
   /**

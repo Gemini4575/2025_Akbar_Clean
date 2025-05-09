@@ -39,9 +39,12 @@ public final class Constants {
         public static final Translation2d m_frontRightLocation = new Translation2d(MODULE_OFFSET_X, -MODULE_OFFSET_Y);
         public static final Translation2d m_frontLeftLocation = new Translation2d(MODULE_OFFSET_X, MODULE_OFFSET_Y);
 
-        public static final double MaxMetersPersecond = 4.47;// 3.264903459; //4.47 This is calculated 5676rpm,  4in wheels, 6.75 gearbox
+        public static final double MaxMetersPersecond = 4.47;// 3.264903459; //4.47 This is calculated 5676rpm, 4in
+                                                             // wheels, 6.75 gearbox
         public static final double kWheelRadius = 0.0508;
-        public static final double kModuleMaxAngularVelocity = 27.73816874; // This is calculated 5676rpm, 150/7:1 gearbox in radians. 594.380 deg/s in pathplanner
+        public static final double kModuleMaxAngularVelocity = 27.73816874; // This is calculated 5676rpm, 150/7:1
+                                                                            // gearbox in radians. 594.380 deg/s in
+                                                                            // pathplanner
         public static final double kModuleMaxAngularAcceleration = 18.85;// 4 * Math.PI; // radians per second squared
         public static final double gearboxRatio = 6.75;
 
@@ -86,5 +89,34 @@ public final class Constants {
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID,
                     angleMotorID, canCoderID, angleOffset);
         }
+    }
+
+    public final static class JoystickConstants {
+        public final static int DRIVER_USB = 0;
+        public final static int OPERATOR_USB = 1;
+        public final static int TEST_USB = 2;
+
+        public final static int LEFT_Y_AXIS = 1;
+        public final static int LEFT_X_AXIS = 0;
+        public final static int RIGHT_X_AXIS = 4;
+        public final static int RIGHT_Y_AXIS = 5;
+
+        public final static int GREEN_BUTTON = 1;
+        public final static int RED_BUTTON = 2;
+        public final static int YELLOW_BUTTON = 4;
+        public final static int BLUE_BUTTON = 3;
+
+        public final static int LEFT_TRIGGER = 2;
+        public final static int RIGHT_TRIGGER = 3;
+        public final static int LEFT_BUMPER = 5;
+        public final static int RIGHT_BUMPER = 6;
+
+        public final static int BACK_BUTTON = 7;
+        public final static int START_BUTTON = 8;
+
+        public final static int POV_UP = 0;
+        public final static int POV_RIGHT = 90;
+        public final static int POV_DOWN = 180;
+        public final static int POV_LEFT = 270;
     }
 }

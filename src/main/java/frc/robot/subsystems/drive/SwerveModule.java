@@ -18,10 +18,11 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.SwerveModuleConstants;
 import frc.robot.Constants.SwerveConstants;
 
-public class SwerveModule {
+public class SwerveModule extends SubsystemBase {
 
     private ProfiledPIDController turningPidController = new ProfiledPIDController(
             16, // Proportional gain
@@ -43,7 +44,7 @@ public class SwerveModule {
     private SparkMax angleMotor;
 
     private AnalogInput Encoder;
-    private final RelativeEncoder m_driveEncoder;
+    private RelativeEncoder m_driveEncoder;
 
     private double angleOffset;
 
@@ -67,9 +68,19 @@ public class SwerveModule {
 
         m_driveEncoder = driveMotor.getEncoder();
 
-        angleOffset = s.angleOffset;
+        angleOffset = -s.angleOffset;
 
         moduleNumber = s.cancoderID; // Assuming module number is based on drive motor ID for simplicity
+
+        turningPidController.enableContinuousInput(-Math.PI, Math.PI);
+    }
+
+    @Override
+    public void periodic() {
+        if (RobotState.isTest()) {
+            SmartDashboard.putNumber("[Swerve]encoder raw " + moduleNumber, getRawAngle());
+        }
+
     }
 
     private double encoderValue() {
@@ -153,8 +164,7 @@ public class SwerveModule {
         final double driveOutput = drivingPidController.calculate(m_driveEncoder.getVelocity(),
                 state.speedMetersPerSecond);
 
-        final double turnOutput = Math
-                .max(Math.min(turningPidController.calculate(encoderValue(), state.angle.getRadians()), 8.1), -8.1);
+        final double turnOutput = turningPidController.calculate(encoderValue(), state.angle.getRadians());
         // final double turnOutput = Math.min (Math.max
         // (turningPidController.calculate(encoderValue(), state.angle.getRadians());
         // SmartDashboard.putNumber("[Swerve]pid " + moduleNumber, turnOutput);

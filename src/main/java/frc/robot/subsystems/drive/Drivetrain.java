@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
@@ -132,6 +133,13 @@ public class Drivetrain extends SubsystemBase {
     frontRight_2.SetDesiredState(swerveModuleStates[2]);
     frontLeft_3.SetDesiredState(swerveModuleStates[3]);
 
+  }
+
+  public void ResetGyro() {
+    gyro.reset();
+
+    SmartDashboard.putString("[Drivetrain]Gyro has been reset", java.time.LocalTime.now().toString());
+    System.out.println("Gyro has been reset");
   }
 
   // public void configureAutoBuilder() {

@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,6 +26,8 @@ import frc.robot.subsystems.OzzyGrabberSubsystem;
 import frc.robot.subsystems.drive.Drivetrain;
 
 import static frc.robot.Constants.JoystickConstants.*;
+
+import com.pathplanner.lib.auto.AutoBuilder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -47,6 +51,9 @@ public class RobotContainer {
       .and(new JoystickButton(driver, 12)))
       .or(new JoystickButton(operator, START_BUTTON));
 
+  /* Pathplanner stuff */
+  private final SendableChooser<Command> PathplannerautoChoosers;
+
   /* Subsystems */
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final LiliCoralSubystem c = new LiliCoralSubystem();
@@ -54,6 +61,10 @@ public class RobotContainer {
   private final OzzyGrabberSubsystem g = new OzzyGrabberSubsystem();
 
   public RobotContainer() {
+
+    PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -119,6 +130,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+    return PathplannerautoChoosers.getSelected();
   }
 }

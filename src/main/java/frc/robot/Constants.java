@@ -416,7 +416,7 @@ public final class Constants {
 
     public final static class OzzyGrabberConstants {
         /* Ints */
-        public final static int GrabberMotor = 21;
+        public final static int GrabberMotor = 16;
         public final static int PosetionMotor = 17;
         public final static int top = 8;
         public final static int Bottom = 10;
@@ -424,8 +424,8 @@ public final class Constants {
         /* Doubles */
         public final static double IntakeSpeed = -0.3;
         public final static double OutakeSpeed = 0.5;
-        public final static double UpSpeed = -0.05;
-        public final static double DownSpeed = 0.05;
+        public final static double UpSpeed = -0.5;
+        public final static double DownSpeed = 0.5;
         public final static double MovmentLength = 12.5;
         public final static double MiddleLength = 0.0;
     }

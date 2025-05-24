@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -8,6 +9,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -186,8 +189,8 @@ public class Drivetrain extends SubsystemBase {
         new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
             // holonomic
             // drive trains
-            new PIDConstants(15.5, 0, 0.0), // Translation PID constants
-            new PIDConstants(6, 0.0, 0.0) // Rotation PID constants
+            new PIDConstants(0.5, 0, 0.0), // Translation PID constants
+            new PIDConstants(0, 0, 0.0) // Rotation PID constants
         ),
         config, // The robot configuration
         () -> {
@@ -204,5 +207,16 @@ public class Drivetrain extends SubsystemBase {
         this // Reference to this subsystem to set requirements
     );
   }
+
+  /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
+    public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+    }
+
+    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}. */
+    public void addVisionMeasurement(
+            Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+    }
 
 }

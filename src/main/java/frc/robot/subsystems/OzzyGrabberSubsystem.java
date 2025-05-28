@@ -25,6 +25,7 @@ public class OzzyGrabberSubsystem extends SubsystemBase {
     public OzzyGrabberSubsystem() {
         intake = new SparkMax(GrabberMotor, MotorType.kBrushless);
         Pose = new SparkMax(PosetionMotor, MotorType.kBrushed);
+        kick = new SparkMax(15, MotorType.kBrushed);
 
         timer = new Timer();
 
@@ -40,12 +41,22 @@ public class OzzyGrabberSubsystem extends SubsystemBase {
         return bottom.get();
     }
 
-    private boolean kicker() {
-        return kicker.get();
-    }
+    private int IntakePulseCount = 0;
 
     public void intake() {
         intake.set(IntakeSpeed);
+    }
+
+    public void intakePulse() {
+        if (IntakePulseCount < 5 && IntakePulseCount >= 0) {
+            intake.set(IntakeSpeed);
+        } else if (IntakePulseCount >= 5) {
+            intake.stopMotor();
+            IntakePulseCount = -5;
+        } else if (IntakePulseCount < 0) {
+            intake.stopMotor();
+        }
+        IntakePulseCount++;
     }
 
     public void outake() {
@@ -115,7 +126,7 @@ public class OzzyGrabberSubsystem extends SubsystemBase {
     }
 
     public void joy(double joy) {
-        // kick.set(-Math.abs(joy));
+        kick.set(Math.abs(joy));
     }
 
     public void joy1(double joy) {

@@ -23,8 +23,9 @@ import frc.robot.commands.algea.EXO.OzUp;
 import frc.robot.commands.climb.Climb;
 import frc.robot.commands.coral.lili.AUTOCoral;
 import frc.robot.commands.coral.lili.AUTOCoralFalse;
-import frc.robot.commands.coral.lili.EXOCloseGateSlow;
+import frc.robot.commands.coral.lili.EXOCloseGate;
 import frc.robot.commands.coral.lili.LIPlaceCoral;
+import frc.robot.commands.coral.lili.LIPlaceCoralSlow;
 import frc.robot.commands.coral.lili.LiAutoPlaceCoral;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
@@ -83,11 +84,10 @@ public class RobotContainer {
   private final Field2d autoTargetPose = new Field2d();
   private final Field2d autoPath = new Field2d();
 
-
   public RobotContainer() {
     NamedCommands.registerCommand("Drop Coral", new LiAutoPlaceCoral(c));
-    NamedCommands.registerCommand("Drop and Close Coral", new LIPlaceCoral(c));
-    NamedCommands.registerCommand("Close Door", new EXOCloseGateSlow(c));
+    NamedCommands.registerCommand("Drop and Close Coral", new LIPlaceCoralSlow(c));
+    NamedCommands.registerCommand("Close Door", new EXOCloseGate(c));
     NamedCommands.registerCommand("Is there Coral", new AUTOCoral(c));
     NamedCommands.registerCommand("Is there not Coral", new AUTOCoralFalse(c));
     NamedCommands.registerCommand("Wheels", new AlineWheels(D));
@@ -114,26 +114,26 @@ public class RobotContainer {
             () -> -driver.getTwist(),
             Slow));
     /* Operator Controls */
-      new JoystickButton(operator, JoystickConstants.BLUE_BUTTON)
-          .onTrue(new LIPlaceCoral(c));
-      new JoystickButton(operator, JoystickConstants.GREEN_BUTTON)
-          .whileTrue(new OzDown(g));
-      new JoystickButton(operator, YELLOW_BUTTON)
-          .whileTrue(new OzUp(g));
+    new JoystickButton(operator, JoystickConstants.BLUE_BUTTON)
+        .onTrue(new LIPlaceCoral(c));
+    new JoystickButton(operator, JoystickConstants.GREEN_BUTTON)
+        .whileTrue(new OzDown(g));
+    new JoystickButton(operator, YELLOW_BUTTON)
+        .whileTrue(new OzUp(g));
 
     /* Testing */
-      new JoystickButton(testing, BLUE_BUTTON)
-          .onTrue(new Climb(nc));
+    new JoystickButton(testing, BLUE_BUTTON)
+        .onTrue(new Climb(nc));
     System.out.println("Ended configureBindings()");
   }
 
   public void Periodic() {
     updateVisionEst();
   }
- 
+
   public void teleopPeriodic() {
     if (operator.getRawButton(LEFT_BUMPER)) {
-      g.intake();
+      g.intakePulse();
     } else if (operator.getRawButton(RIGHT_BUMPER)) {
       g.outake();
     } else {

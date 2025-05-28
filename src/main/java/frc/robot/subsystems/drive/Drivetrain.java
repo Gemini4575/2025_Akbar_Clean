@@ -111,10 +111,11 @@ public class Drivetrain extends SubsystemBase {
         frontLeft_3.getPosition(),
     };
   }
-//hi
+
+  // hi
   public void driveRobotRelative(ChassisSpeeds c) {
     drive((c.vxMetersPerSecond / MaxMetersPersecond),
-        (c.vyMetersPerSecond / MaxMetersPersecond), c.omegaRadiansPerSecond, false);
+        (c.vyMetersPerSecond / MaxMetersPersecond), (c.omegaRadiansPerSecond / kModuleMaxAngularVelocity), false);
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
@@ -189,8 +190,8 @@ public class Drivetrain extends SubsystemBase {
         new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
             // holonomic
             // drive trains
-            new PIDConstants(0.5, 0, 0.0), // Translation PID constants
-            new PIDConstants(0, 0, 0.0) // Rotation PID constants
+            new PIDConstants(0.48, 0, 0.0), // Translation PID constants
+            new PIDConstants(16, 0, 0.0) // Rotation PID constants
         ),
         config, // The robot configuration
         () -> {
@@ -208,15 +209,20 @@ public class Drivetrain extends SubsystemBase {
     );
   }
 
-  /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
-    public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
-        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
-    }
+  /**
+   * See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}.
+   */
+  public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+    poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+  }
 
-    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}. */
-    public void addVisionMeasurement(
-            Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
-        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
-    }
+  /**
+   * See
+   * {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}.
+   */
+  public void addVisionMeasurement(
+      Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+    poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+  }
 
 }

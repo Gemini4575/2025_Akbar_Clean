@@ -74,8 +74,8 @@ public class Vision extends SubsystemBase {
 
     public Vision() {
         super();
-        tagCamera = new PhotonCamera(kTagCameraName);
-        tagCameraColor = new PhotonCamera("s");
+        tagCamera = new PhotonCamera("Arducam1");
+        tagCameraColor = new PhotonCamera("ArducamColor");
 
         photonEstimator = new PhotonPoseEstimator(kTagLayout,
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);

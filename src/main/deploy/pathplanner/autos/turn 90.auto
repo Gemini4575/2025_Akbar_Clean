@@ -13,13 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "turn 90"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "test",
   "choreoAuto": false
 }

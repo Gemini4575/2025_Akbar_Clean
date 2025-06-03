@@ -191,7 +191,7 @@ public class Drivetrain extends SubsystemBase {
             // holonomic
             // drive trains
             new PIDConstants(0.48, 0, 0.0), // Translation PID constants
-            new PIDConstants(16, 0, 0.0) // Rotation PID constants
+            new PIDConstants(35, 0, 0.0) // Rotation PID constants
         ),
         config, // The robot configuration
         () -> {

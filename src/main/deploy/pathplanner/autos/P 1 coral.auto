@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Wheels"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P To side 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Drop and Close Coral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

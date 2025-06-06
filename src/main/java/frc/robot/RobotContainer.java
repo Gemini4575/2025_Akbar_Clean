@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.JoystickConstants;
 import frc.robot.commands.AlineWheels;
+import frc.robot.commands.Stop;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.commands.algea.EXO.OzDown;
 import frc.robot.commands.algea.EXO.OzUp;
@@ -91,6 +92,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Is there Coral", new AUTOCoral(c));
     NamedCommands.registerCommand("Is there not Coral", new AUTOCoralFalse(c));
     NamedCommands.registerCommand("Wheels", new AlineWheels(D));
+    NamedCommands.registerCommand("Stop", new Stop(D));
 
     PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
@@ -152,7 +154,14 @@ public class RobotContainer {
       nc.JoyClimb2(MathUtil.applyDeadband(climber.getRawAxis(JoystickConstants.LEFT_Y_AXIS), 0.5),
           climber.getRawButton(JoystickConstants.BACK_BUTTON));
     }
-    nc.Flipper(testing.getRawAxis(LEFT_Y_AXIS));
+
+    if (climber.getPOV() == 0) {
+      nc.Flipper(-1);
+    } else if (climber.getPOV() == 180) {
+      nc.Flipper(1);
+    } else {
+      nc.Flipper(0);
+    }
 
   }
 

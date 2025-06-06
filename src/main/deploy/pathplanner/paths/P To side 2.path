@@ -20,12 +20,12 @@
         "y": 2.95
       },
       "prevControl": {
-        "x": 5.534125269978403,
-        "y": 2.148704103671705
+        "x": 5.666792656587473,
+        "y": 2.224514038876889
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "New Side 2"
     }
   ],
   "rotationTargets": [

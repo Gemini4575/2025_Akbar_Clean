@@ -16,9 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.JoystickConstants;
-import frc.robot.commands.AlineWheels;
-import frc.robot.commands.Stop;
-import frc.robot.commands.TeleopSwerve;
 import frc.robot.commands.algea.EXO.OzDown;
 import frc.robot.commands.algea.EXO.OzUp;
 import frc.robot.commands.climb.Climb;
@@ -28,6 +25,11 @@ import frc.robot.commands.coral.lili.EXOCloseGate;
 import frc.robot.commands.coral.lili.LIPlaceCoral;
 import frc.robot.commands.coral.lili.LIPlaceCoralSlow;
 import frc.robot.commands.coral.lili.LiAutoPlaceCoral;
+import frc.robot.commands.driving.AlineWheels;
+import frc.robot.commands.driving.Spin180;
+import frc.robot.commands.driving.Stop;
+import frc.robot.commands.driving.TeleopSwerve;
+import frc.robot.commands.testing.PathFindToAprilTag;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
 import frc.robot.subsystems.OzzyGrabberSubsystem;
@@ -60,9 +62,10 @@ public class RobotContainer {
 
   /* Controllers */
   private final Joystick driver = new Joystick(0);
-  private final Joystick operator = new Joystick(1);
-  private final Joystick climber = new Joystick(2);
-  private final Joystick testing = new Joystick(3);
+  private final Joystick rotator = new Joystick(1);
+  private final Joystick operator = new Joystick(2);
+  private final Joystick climber = new Joystick(3);
+  private final Joystick testing = new Joystick(4);
 
   /* Driver Buttons */
   private final JoystickButton zeroGyro = new JoystickButton(driver, 4);
@@ -111,10 +114,13 @@ public class RobotContainer {
     D.setDefaultCommand(
         new TeleopSwerve(
             D,
-            () -> -driver.getRawAxis(LEFT_X_AXIS),
-            () -> driver.getRawAxis(LEFT_Y_AXIS),
-            () -> -driver.getTwist(),
-            Slow));
+            () -> -testing.getRawAxis(LEFT_X_AXIS),
+            () -> testing.getRawAxis(LEFT_Y_AXIS),
+            () -> -testing.getRawAxis(RIGHT_Y_AXIS),
+            Slow,
+            () -> testing.getPOV()));
+    new JoystickButton(testing, RED_BUTTON)
+        .onTrue(new Spin180(D).asProxy());
     /* Operator Controls */
     new JoystickButton(operator, JoystickConstants.BLUE_BUTTON)
         .onTrue(new LIPlaceCoral(c));
@@ -124,8 +130,7 @@ public class RobotContainer {
         .whileTrue(new OzUp(g));
 
     /* Testing */
-    new JoystickButton(testing, BLUE_BUTTON)
-        .onTrue(new Climb(nc));
+
     System.out.println("Ended configureBindings()");
   }
 

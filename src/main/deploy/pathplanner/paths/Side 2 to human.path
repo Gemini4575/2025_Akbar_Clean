@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 4.5106911447084235,
-        "y": 1.4474622030237574
+        "y": 1.4474622030237576
       },
       "isLocked": false,
       "linkedName": "New Side 2"
@@ -25,7 +25,7 @@
       },
       "nextControl": {
         "x": 3.376969379866313,
-        "y": 0.8681053510044326
+        "y": 0.8681053510044325
       },
       "isLocked": false,
       "linkedName": null

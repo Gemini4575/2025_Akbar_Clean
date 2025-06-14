@@ -2,6 +2,8 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,6 +32,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
@@ -37,7 +41,12 @@ import com.studica.frc.AHRS.NavXComType;
 import com.studica.frc.AHRS.NavXUpdateRate;
 
 public class Drivetrain extends SubsystemBase {
-  // TODO make the auto spit a percent at us
+
+  private ProfiledPIDController rotation = new ProfiledPIDController(
+      0.007,
+      0,
+      0,
+      new TrapezoidProfile.Constraints(2, 2));
 
   private SwerveModule backLeft_0 = new SwerveModule(Mod0.constants);
   private SwerveModule backRight_1 = new SwerveModule(Mod1.constants);
@@ -61,6 +70,7 @@ public class Drivetrain extends SubsystemBase {
   private RobotConfig config;
 
   public Drivetrain() {
+    rotation.enableContinuousInput(-180, 180);
     gyro.reset();
 
     try {
@@ -112,25 +122,26 @@ public class Drivetrain extends SubsystemBase {
     };
   }
 
-  // hi
+  double Rotate_Rot = 0.0;
+
   public void driveRobotRelative(ChassisSpeeds c) {
     drive((c.vxMetersPerSecond / MaxMetersPersecond),
         (c.vyMetersPerSecond / MaxMetersPersecond), (c.omegaRadiansPerSecond / kModuleMaxAngularVelocity), false);
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    SmartDashboard.putNumber("[Drivetrain]drive rot", rot);
+    SmartDashboard.putNumber("[Drivetrain]drive rot", rot + Rotate_Rot);
     SmartDashboard.putNumber("[Drivetrain]drive xSpeed", xSpeed);
     SmartDashboard.putNumber("[Drivetrain]drive ySpeed", ySpeed);
     xSpeed_cur = xSpeed;
     ySpeed_cur = ySpeed;
-    rot_cur = rot;
-    SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getAngle());
+    rot_cur = rot + Rotate_Rot;
+    SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getYaw());
     var swerveModuleStates = m_kinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(-1 * xSpeed, ySpeed, rot, gyro.getRotation2d())
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(-1 * xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
             : new ChassisSpeeds(xSpeed, ySpeed, rot));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, 1.0);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MaxMetersPersecond);
 
     SmartDashboard.putString("[Drivetrain]gyro", gyro.getRotation2d().toString());
     SmartDashboard.putString("[Drivetrain]module 0", swerveModuleStates[0].toString());
@@ -147,6 +158,43 @@ public class Drivetrain extends SubsystemBase {
     frontRight_2.SetDesiredState(swerveModuleStates[2]);
     frontLeft_3.SetDesiredState(swerveModuleStates[3]);
 
+  }
+
+  double startAngle = 0.0;
+  boolean first = true;
+
+  private void first() {
+    if (first) {
+      startAngle = gyro.getAngle();
+      first = false;
+    }
+  }
+
+  public void end() {
+    first = true;
+  }
+
+  // This is origanly with -180 to 180 bounds but we found that we ran into a
+  // problem when it would flip and the robot would ocsolate due to the signum
+  // calculation so we just made it contiues and just scalled down the values we
+  // gave the PID loop
+  public boolean rotate(Rotation2d targetAngle) {
+    first();
+    Rotation2d currentAngle = new Rotation2d().fromDegrees(gyro.getAngle());
+    double distance_to_target = targetAngle.minus(new Rotation2d().fromDegrees(startAngle).minus(currentAngle))
+        .getDegrees();
+    SmartDashboard.putNumber("[DriveTrain]Angle", targetAngle.getDegrees());
+    SmartDashboard.putNumber("[DriveTrain]Start Angle", startAngle);
+    SmartDashboard.putNumber("[DriveTrain]currentAngle", currentAngle.getDegrees());
+    SmartDashboard.putNumber("[DriveTrain]distance_to_target", distance_to_target);
+    if (Math.abs(distance_to_target) < 5.0) {
+      Rotate_Rot = 0.0;
+      first = true;
+      return true;
+    }
+    Rotate_Rot = Math.signum(distance_to_target)
+        * rotation.calculate((gyro.getAngle() - 180) - gyro.getAngle(), targetAngle.getDegrees());
+    return false;
   }
 
   public void ResetGyro() {
@@ -207,6 +255,14 @@ public class Drivetrain extends SubsystemBase {
         },
         this // Reference to this subsystem to set requirements
     );
+  }
+
+  public PathConstraints getChassisConstrains() {
+    return new PathConstraints(
+        3.000,
+        3.000,
+        Units.degreesToRadians(540.000),
+        Units.degreesToRadians(720.000));
   }
 
   /**

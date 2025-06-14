@@ -39,6 +39,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.util.PoseTools;
 import frc.robot.Robot;
 
 import java.util.List;
@@ -131,6 +132,13 @@ public class Vision extends SubsystemBase {
 
     public PhotonCamera getTagCamera() {
         return tagCamera;
+    }
+
+    public Pose2d getAprilTagTarget() {
+        if (getTagTarget() != null) {
+            return kTagLayout.getTagPose(tagCamera.getLatestResult().getBestTarget().fiducialId).get().toPose2d();
+        }
+        return null;
     }
 
     /**

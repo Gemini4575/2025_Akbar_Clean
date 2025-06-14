@@ -29,8 +29,8 @@ public class SwerveModule extends SubsystemBase {
             0.0, // Integral gain
             0.0,
             new TrapezoidProfile.Constraints(
-                    SwerveConstants.kModuleMaxAngularVelocity / 4.0,
-                    SwerveConstants.kModuleMaxAngularAcceleration / 4.0));
+                    SwerveConstants.kModuleMaxAngularVelocity,
+                    SwerveConstants.kModuleMaxAngularAcceleration));
 
     private ProfiledPIDController drivingPidController = new ProfiledPIDController(
             1.0, // Proportional gain

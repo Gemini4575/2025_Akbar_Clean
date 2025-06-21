@@ -68,7 +68,7 @@ public class RobotContainer {
   private final Joystick testing = new Joystick(4);
 
   /* Driver Buttons */
-  private final JoystickButton zeroGyro = new JoystickButton(driver, 4);
+  private final JoystickButton zeroGyro = new JoystickButton(driver, BACK_BUTTON);
   private final Trigger Slow = new Trigger(new JoystickButton(driver, 7)
       .and(new JoystickButton(driver, 12)))
       .or(new JoystickButton(operator, START_BUTTON));

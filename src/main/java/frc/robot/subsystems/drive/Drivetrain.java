@@ -187,7 +187,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("[DriveTrain]Start Angle", startAngle);
     SmartDashboard.putNumber("[DriveTrain]currentAngle", currentAngle.getDegrees());
     SmartDashboard.putNumber("[DriveTrain]distance_to_target", distance_to_target);
-    if (Math.abs(distance_to_target) < 5.0) {
+    if (Math.abs(distance_to_target) < 10.0) {
       Rotate_Rot = 0.0;
       first = true;
       return true;

@@ -1,7 +1,5 @@
 package frc.robot.commands.driving;
 
-import frc.robot.subsystems.drive.Drivetrain;
-
 import java.net.http.HttpResponse.BodySubscriber;
 import java.security.PublicKey;
 import java.util.function.BooleanSupplier;
@@ -11,16 +9,17 @@ import java.util.function.IntSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 public class TeleopSwerve extends Command {
-    private final Drivetrain m_drivetrain;
+    private final DrivetrainIO m_drivetrain;
     private final DoubleSupplier m_xSpeedSupplier;
     private final DoubleSupplier m_ySpeedSupplier;
     private final DoubleSupplier m_rotSupplier;
     private final BooleanSupplier m_SlowMode;
     private final IntSupplier dpad;
 
-    public TeleopSwerve(Drivetrain drivetrain, DoubleSupplier xSpeedSupplier, DoubleSupplier ySpeedSupplier,
+    public TeleopSwerve(DrivetrainIO drivetrain, DoubleSupplier xSpeedSupplier, DoubleSupplier ySpeedSupplier,
             DoubleSupplier rotSupplier, BooleanSupplier SlowMode, IntSupplier dpad) {
         m_drivetrain = drivetrain;
         m_xSpeedSupplier = xSpeedSupplier;

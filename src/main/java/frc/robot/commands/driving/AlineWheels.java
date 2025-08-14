@@ -2,14 +2,14 @@ package frc.robot.commands.driving;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 public class AlineWheels extends Command {
-    Drivetrain d;
+    DrivetrainIO d;
     boolean isFinished;
     Timer timer;
 
-    public AlineWheels(Drivetrain d) {
+    public AlineWheels(DrivetrainIO d) {
         this.d = d;
         addRequirements(d);
     }

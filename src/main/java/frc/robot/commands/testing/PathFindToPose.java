@@ -3,18 +3,18 @@ package frc.robot.commands.testing;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 import java.util.function.Supplier;
 
 public class PathFindToPose extends Command {
 
-    private final Drivetrain driveSubsystem;
+    private final DrivetrainIO driveSubsystem;
     private final Supplier<Pose2d> targetPoseSuppler;
 
     private Command cmd;
 
-    public PathFindToPose(Drivetrain driveSubsystem, Supplier<Pose2d> targetPoseSuppler) {
+    public PathFindToPose(DrivetrainIO driveSubsystem, Supplier<Pose2d> targetPoseSuppler) {
         this.driveSubsystem = driveSubsystem;
         this.targetPoseSuppler = targetPoseSuppler;
     }

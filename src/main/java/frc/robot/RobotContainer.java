@@ -34,7 +34,7 @@ import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
 import frc.robot.subsystems.OzzyGrabberSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 import frc.robot.subsystems.Vision;
 
 import static frc.robot.Constants.JoystickConstants.*;
@@ -77,7 +77,7 @@ public class RobotContainer {
   private final SendableChooser<Command> PathplannerautoChoosers;
 
   /* Subsystems */
-  private final Drivetrain D = new Drivetrain();
+  private final DrivetrainIO D = new DrivetrainIO();
   private final LiliCoralSubystem c = new LiliCoralSubystem();
   private final NickClimbingSubsystem nc = new NickClimbingSubsystem();
   private final OzzyGrabberSubsystem g = new OzzyGrabberSubsystem();

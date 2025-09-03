@@ -59,6 +59,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
  */
 public class RobotContainer {
   Field2d visionPoseEstimate = new Field2d();
+  Field2d overallPoseEstimate = new Field2d();
 
   /* Controllers */
   private final Joystick driver = new Joystick(0);
@@ -103,6 +104,7 @@ public class RobotContainer {
     configureLogging();
 
     SmartDashboard.putData("[Robot]Vision Pose Estimate", visionPoseEstimate);
+    SmartDashboard.putData("[Robot]Overall Pose Estimate", overallPoseEstimate);
     PathfindingCommand.warmupCommand().schedule();
     // Configure the trigger bindings
     configureBindings();
@@ -136,6 +138,7 @@ public class RobotContainer {
 
   public void Periodic() {
     updateVisionEst();
+    overallPoseEstimate.setRobotPose(D.getPose());
   }
 
   public void teleopPeriodic() {

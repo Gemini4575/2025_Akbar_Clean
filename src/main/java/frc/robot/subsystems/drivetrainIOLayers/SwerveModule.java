@@ -176,11 +176,12 @@ public class SwerveModule extends SubsystemBase {
         angleMotor.set((turnOutput / SwerveConstants.kModuleMaxAngularVelocity));
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor set " + moduleNumber,
-                state.speedMetersPerSecond / SwerveConstants.MaxMetersPersecond);
+                state.speedMetersPerSecond);
         SmartDashboard.putNumber("[Swerve]m_turningMotor set " + moduleNumber,
                 turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor actual" + moduleNumber, getConvertedVelocity());
+        SmartDashboard.putNumber("[Swerve]m_driveMotor get" + moduleNumber, driveMotor.get());
         SmartDashboard.putNumber("[Swerve]m_turningMotor actual" + moduleNumber, angleMotor.get());
 
         SmartDashboard.putNumber("[Swerve]drive encoder" + moduleNumber, angleMotor.getEncoder().getPosition());

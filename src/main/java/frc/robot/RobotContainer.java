@@ -6,19 +6,16 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.JoystickConstants;
 import frc.robot.commands.algea.EXO.OzDown;
 import frc.robot.commands.algea.EXO.OzUp;
-import frc.robot.commands.climb.Climb;
 import frc.robot.commands.coral.lili.AUTOCoral;
 import frc.robot.commands.coral.lili.AUTOCoralFalse;
 import frc.robot.commands.coral.lili.EXOCloseGate;
@@ -29,19 +26,13 @@ import frc.robot.commands.driving.AlineWheels;
 import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
-import frc.robot.commands.testing.PathFindToAprilTag;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
 import frc.robot.subsystems.OzzyGrabberSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 import frc.robot.subsystems.Vision;
 
 import static frc.robot.Constants.JoystickConstants.*;
-
-import java.util.Optional;
-
-import org.photonvision.EstimatedRobotPose;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -83,7 +74,6 @@ public class RobotContainer {
   private final NickClimbingSubsystem nc = new NickClimbingSubsystem();
   private final OzzyGrabberSubsystem g = new OzzyGrabberSubsystem();
   private final Vision V = new Vision();
-  private final VisionSubsystem VS = new VisionSubsystem(V);
 
   private final Field2d autoRobotPose = new Field2d();
   private final Field2d autoTargetPose = new Field2d();
@@ -198,23 +188,11 @@ public class RobotContainer {
   }
 
   private void updateVisionEst() {
-    var visionEst = V.getEstimatedGlobalPose();
-    updateLocationWithVision(visionEst);
-    var visionEstColor = V.getEstimatedGlobalPoseColor();
-    updateLocationWithVision(visionEstColor);
-  }
-
-  private void updateLocationWithVision(Optional<EstimatedRobotPose> visionEst) {
-    visionEst.ifPresent(
-        est -> {
-          // Change our trust in the measurement based on the tags we can see
-          var estStdDevs = V.getEstimationStdDevs();
-
-          D.addVisionMeasurement(
-              est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-
-          visionPoseEstimate.setRobotPose(est.estimatedPose.toPose2d());
-        });
+    V.getEstimatedVisionPoses().forEach(estimateContainer -> {
+      D.addVisionMeasurement(estimateContainer.estimatedPose().estimatedPose.toPose2d(),
+          estimateContainer.estimatedPose().timestampSeconds, estimateContainer.stdDev());
+      visionPoseEstimate.setRobotPose(estimateContainer.estimatedPose().estimatedPose.toPose2d());
+    });
   }
 
   /**

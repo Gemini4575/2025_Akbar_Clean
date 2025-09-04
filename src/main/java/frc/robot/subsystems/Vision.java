@@ -39,13 +39,14 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.util.PoseTools;
 import frc.robot.Robot;
+import frc.robot.model.PhotonDataContainer;
+import frc.robot.model.VisionEstimateContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -55,14 +56,9 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import static frc.robot.Constants.Vision.*;
-
 public class Vision extends SubsystemBase {
-    private final PhotonCamera tagCamera;
-    private final PhotonCamera tagCameraColor;
-    private final PhotonPoseEstimator photonEstimator;
-    private final PhotonPoseEstimator photonEstimatorColor;
-    private Matrix<N3, N1> curStdDevs;
+
+    private final List<PhotonDataContainer> photonDataContainers;
 
     private final PhotonCamera algaeCamera;
 
@@ -70,21 +66,21 @@ public class Vision extends SubsystemBase {
     private PhotonCameraSim cameraSim;
     private VisionSystemSim visionSim;
 
-    private PhotonTrackedTarget currentTagTarget;
-    private long lastTagUpdate;
-
     public Vision() {
         super();
-        tagCamera = new PhotonCamera("Arducam1");
-        tagCameraColor = new PhotonCamera("ArducamColor");
+        var tagCamera = new PhotonCamera("Arducam1");
+        var tagCameraColor = new PhotonCamera("ArducamColor");
 
-        photonEstimator = new PhotonPoseEstimator(kTagLayout,
+        var photonEstimator = new PhotonPoseEstimator(kTagLayout,
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
         photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
-        photonEstimatorColor = new PhotonPoseEstimator(kTagLayout,
-                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCam);
+        var photonEstimatorColor = new PhotonPoseEstimator(kTagLayout,
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, kRobotToCamColor);
         photonEstimatorColor.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+        photonDataContainers = List.of(new PhotonDataContainer(tagCamera, photonEstimator),
+                new PhotonDataContainer(tagCameraColor, photonEstimatorColor));
 
         algaeCamera = new PhotonCamera(kAlgaeCameraName);
         algaeCamera.setPipelineIndex(0);
@@ -122,25 +118,6 @@ public class Vision extends SubsystemBase {
         return algaeCamera.getLatestResult().hasTargets() ? algaeCamera.getLatestResult().getBestTarget() : null;
     }
 
-    public PhotonTrackedTarget getTagTarget() {
-        return currentTagTarget;
-        // if (tagCamera.getLatestResult().hasTargets()) {
-        // return tagCamera.getLatestResult().getBestTarget();
-        // }
-        // return null;
-    }
-
-    public PhotonCamera getTagCamera() {
-        return tagCamera;
-    }
-
-    public Pose2d getAprilTagTarget() {
-        if (getTagTarget() != null) {
-            return kTagLayout.getTagPose(tagCamera.getLatestResult().getBestTarget().fiducialId).get().toPose2d();
-        }
-        return null;
-    }
-
     /**
      * The latest estimated robot pose on the field from vision data. This may be
      * empty. This should
@@ -156,19 +133,14 @@ public class Vision extends SubsystemBase {
      *         timestamp, and targets
      *         used for estimation.
      */
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-        return getEstimatedGlobalPose(tagCamera);
+    public List<VisionEstimateContainer> getEstimatedVisionPoses() {
+        return photonDataContainers.stream().map(this::getEstimatedGlobalPose).flatMap(t -> t.stream()).toList();
     }
 
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseColor() {
-        return getEstimatedGlobalPose(tagCameraColor);
-    }
-
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(PhotonCamera cam) {
-        Optional<EstimatedRobotPose> visionEst = Optional.empty();
-        for (var change : cam.getAllUnreadResults()) {
-            visionEst = photonEstimator.update(change);
-            updateEstimationStdDevs(visionEst, change.getTargets());
+    public List<VisionEstimateContainer> getEstimatedGlobalPose(PhotonDataContainer photonDataContainer) {
+        List<VisionEstimateContainer> estimates = new ArrayList<>();
+        for (var change : photonDataContainer.getCamera().getAllUnreadResults()) {
+            Optional<EstimatedRobotPose> visionEst = photonDataContainer.getPoseEstimator().update(change);
 
             if (Robot.isSimulation()) {
                 visionEst.ifPresentOrElse(
@@ -179,9 +151,14 @@ public class Vision extends SubsystemBase {
                             getSimDebugField().getObject("VisionEstimation").setPoses();
                         });
             }
+            if (visionEst.isPresent()) {
+                var stdDev = updateEstimationStdDevs(visionEst, change.getTargets(),
+                        photonDataContainer.getPoseEstimator());
+                estimates.add(new VisionEstimateContainer(visionEst.get(), stdDev));
+            }
         }
 
-        return visionEst;
+        return estimates;
     }
 
     /**
@@ -194,8 +171,11 @@ public class Vision extends SubsystemBase {
      * @param estimatedPose The estimated pose to guess standard deviations for.
      * @param targets       All targets in this camera frame
      */
-    private void updateEstimationStdDevs(
-            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+    private Matrix<N3, N1> updateEstimationStdDevs(
+            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets,
+            PhotonPoseEstimator photonEstimator) {
+        Matrix<N3, N1> curStdDevs;
+
         if (estimatedPose.isEmpty()) {
             // No pose input. Default to single-tag std devs
             curStdDevs = kSingleTagStdDevs;
@@ -238,16 +218,6 @@ public class Vision extends SubsystemBase {
                 curStdDevs = estStdDevs;
             }
         }
-    }
-
-    /**
-     * Returns the latest standard deviations of the estimated pose from {@link
-     * #getEstimatedGlobalPose()}, for use with {@link
-     * edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
-     * SwerveDrivePoseEstimator}. This should
-     * only be used when there are targets visible.
-     */
-    public Matrix<N3, N1> getEstimationStdDevs() {
         return curStdDevs;
     }
 
@@ -268,19 +238,6 @@ public class Vision extends SubsystemBase {
         if (!Robot.isSimulation())
             return null;
         return visionSim.getDebugField();
-    }
-
-    @Override
-    public void periodic() {
-        var newResults = tagCamera.getAllUnreadResults();
-        if (newResults != null && !newResults.isEmpty()) {
-            currentTagTarget = newResults.get(newResults.size() - 1).getBestTarget();
-            lastTagUpdate = System.currentTimeMillis();
-        } else {
-            if (System.currentTimeMillis() > lastTagUpdate + 1000) {
-                currentTagTarget = null;
-            }
-        }
     }
 
 }

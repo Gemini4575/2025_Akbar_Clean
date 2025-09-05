@@ -5,6 +5,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -73,6 +74,8 @@ public class SwerveModule extends SubsystemBase {
         moduleNumber = s.cancoderID; // Assuming module number is based on drive motor ID for simplicity
 
         turningPidController.enableContinuousInput(-Math.PI, Math.PI);
+
+        m_driveEncoder.setPosition(0);
     }
 
     @Override
@@ -184,7 +187,7 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("[Swerve]m_driveMotor get" + moduleNumber, driveMotor.get());
         SmartDashboard.putNumber("[Swerve]m_turningMotor actual" + moduleNumber, angleMotor.get());
 
-        SmartDashboard.putNumber("[Swerve]drive encoder" + moduleNumber, angleMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("[Swerve]drive encoder" + moduleNumber, m_driveEncoder.getPosition());
         SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, encoderValue());
 
         if (RobotState.isTest()) {

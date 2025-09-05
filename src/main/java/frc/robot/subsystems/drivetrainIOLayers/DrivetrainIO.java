@@ -77,7 +77,7 @@ public class DrivetrainIO extends SubsystemBase {
     }
 
     var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
-    var visionStdDevs = VecBuilder.fill(1, 1, 1);
+    var visionStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     poseEstimator = new SwerveDrivePoseEstimator(
         m_kinematics,
         gyro.getRotation2d(),
@@ -137,10 +137,16 @@ public class DrivetrainIO extends SubsystemBase {
     ySpeed_cur = ySpeed;
     rot_cur = rot + Rotate_Rot;
     SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getYaw());
-    var swerveModuleStates = m_kinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(-1 * xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
-            : new ChassisSpeeds(xSpeed, ySpeed, rot));
+
+    var chassisSpeeds = fieldRelative
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
+        : new ChassisSpeeds(xSpeed, ySpeed, rot);
+
+    SmartDashboard.putNumber("[Drivetrain]chassis rot", chassisSpeeds.omegaRadiansPerSecond);
+    SmartDashboard.putNumber("[Drivetrain]chassis xSpeed", chassisSpeeds.vxMetersPerSecond);
+    SmartDashboard.putNumber("[Drivetrain]chassis ySpeed", chassisSpeeds.vyMetersPerSecond);
+
+    var swerveModuleStates = m_kinematics.toSwerveModuleStates(chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MaxMetersPersecond);
 
     SmartDashboard.putString("[Drivetrain]gyro", gyro.getRotation2d().toString());
@@ -229,19 +235,18 @@ public class DrivetrainIO extends SubsystemBase {
   }
 
   /**
-   * See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}.
-   */
-  public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
-    poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
-  }
-
-  /**
    * See
    * {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}.
    */
   public void addVisionMeasurement(
       Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
     poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+  }
+
+  @Override
+  public void periodic() {
+    super.periodic();
+    poseEstimator.update(gyro.getRotation2d(), getModulePositions());
   }
 
 }

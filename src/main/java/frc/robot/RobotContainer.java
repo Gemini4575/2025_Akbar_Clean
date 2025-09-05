@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -23,6 +25,7 @@ import frc.robot.commands.coral.lili.LIPlaceCoral;
 import frc.robot.commands.coral.lili.LIPlaceCoralSlow;
 import frc.robot.commands.coral.lili.LiAutoPlaceCoral;
 import frc.robot.commands.driving.AlineWheels;
+import frc.robot.commands.driving.DriveToLocation;
 import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
@@ -60,7 +63,7 @@ public class RobotContainer {
   private final Joystick testing = new Joystick(4);
 
   /* Driver Buttons */
-  private final JoystickButton zeroGyro = new JoystickButton(driver, BACK_BUTTON);
+  private final JoystickButton zeroGyro = new JoystickButton(testing, BACK_BUTTON);
   private final Trigger Slow = new Trigger(new JoystickButton(driver, 7)
       .and(new JoystickButton(driver, 12)))
       .or(new JoystickButton(operator, START_BUTTON));
@@ -122,6 +125,9 @@ public class RobotContainer {
         .whileTrue(new OzUp(g));
 
     /* Testing */
+
+    new JoystickButton(testing, YELLOW_BUTTON)
+        .onTrue(new DriveToLocation(D, new Pose2d(7, 5, new Rotation2d(0))));
 
     System.out.println("Ended configureBindings()");
   }

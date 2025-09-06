@@ -1,7 +1,5 @@
 package frc.robot.commands.driving;
 
-import java.net.http.HttpResponse.BodySubscriber;
-import java.security.PublicKey;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;

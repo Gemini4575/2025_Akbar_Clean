@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 

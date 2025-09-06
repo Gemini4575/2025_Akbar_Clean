@@ -2,8 +2,6 @@ package frc.robot.subsystems.drivetrainIOLayers;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,12 +11,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.Mod0;
 import frc.robot.Constants.SwerveConstants.Mod1;
 import frc.robot.Constants.SwerveConstants.Mod2;
@@ -59,7 +55,9 @@ public class DrivetrainIO extends SubsystemBase {
 
   private final SwerveDrivePoseEstimator poseEstimator;
 
+  @SuppressWarnings("unused")
   private final SwerveSetpointGenerator setpointGenerator;
+  @SuppressWarnings("unused")
   private SwerveSetpoint previousSetpoint;
   private RobotConfig config;
 
@@ -188,8 +186,6 @@ public class DrivetrainIO extends SubsystemBase {
   }
 
   public void resetPose(Pose2d aPose2d) {
-    // m_odometry.resetPosition(m_gyro.getRotation2d(),
-    // getModulePositions(), aPose2d );
     poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), aPose2d);
   }
 

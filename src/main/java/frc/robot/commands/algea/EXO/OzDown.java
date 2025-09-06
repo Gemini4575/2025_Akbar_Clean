@@ -1,10 +1,9 @@
 package frc.robot.commands.algea.EXO;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.NickClimbingSubsystem;
 import frc.robot.subsystems.OzzyGrabberSubsystem;
 
-public class OzDown extends Command{
+public class OzDown extends Command {
     private OzzyGrabberSubsystem climbing;
 
     public OzDown(OzzyGrabberSubsystem subsystem) {
@@ -14,6 +13,7 @@ public class OzDown extends Command{
     }
 
     boolean isFinished;
+
     @Override
     public void initialize() {
         isFinished = false;

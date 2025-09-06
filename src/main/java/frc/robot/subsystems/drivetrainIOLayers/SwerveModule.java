@@ -5,7 +5,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -32,14 +31,15 @@ public class SwerveModule extends SubsystemBase {
             new TrapezoidProfile.Constraints(
                     SwerveConstants.kModuleMaxAngularVelocity,
                     SwerveConstants.kModuleMaxAngularAcceleration));
-
-    private ProfiledPIDController drivingPidController = new ProfiledPIDController(
-            1.0, // Proportional gain
-            0.0, // Integral gain
-            0.0,
-            new TrapezoidProfile.Constraints(
-                    SwerveConstants.MaxMetersPersecond,
-                    SwerveConstants.kMaxAceceration));
+    // KB not being used right now might go back into use later
+    // private ProfiledPIDController drivingPidController = new
+    // ProfiledPIDController(
+    // 1.0, // Proportional gain
+    // 0.0, // Integral gain
+    // 0.0,
+    // new TrapezoidProfile.Constraints(
+    // SwerveConstants.MaxMetersPersecond,
+    // SwerveConstants.kMaxAceceration));
 
     private SparkMax driveMotor;
     private SparkMax angleMotor;
@@ -184,9 +184,10 @@ public class SwerveModule extends SubsystemBase {
 
         SmartDashboard.putNumber("[Swerve]After Optimize angle target degrees " + moduleNumber,
                 state.angle.getDegrees());
-
-        final double driveOutput = drivingPidController.calculate(m_driveEncoder.getVelocity(),
-                state.speedMetersPerSecond);
+        // KB Not being used right now might go back into use later
+        // final double driveOutput =
+        // drivingPidController.calculate(m_driveEncoder.getVelocity(),
+        // state.speedMetersPerSecond);
 
         final double turnOutput = turningPidController.calculate(encoderValue(), state.angle.getRadians());
         // final double turnOutput = Math.min (Math.max

@@ -6,6 +6,7 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 public class PathFindToAprilTag extends Command {
+    @SuppressWarnings("unused")
     private final Vision vision;
     private final DrivetrainIO driveSubsystem;
     private Command cmd;

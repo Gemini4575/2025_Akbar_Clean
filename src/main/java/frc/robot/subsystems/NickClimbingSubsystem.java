@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.epramotor.Motor;
 import static frc.robot.Constants.NickClimbingConstanst.*;
-import static frc.robot.Constants.OzzyGrabberConstants.top;
 
 public class NickClimbingSubsystem extends SubsystemBase {
 
@@ -77,7 +75,6 @@ public class NickClimbingSubsystem extends SubsystemBase {
      * 
      * @param Joy The joysitck that you are using
      */
-    @Deprecated
     public void JoyClimb1(double Joy, boolean btuon) {
         ClimbingMotor1.set(Joy);
         if (btuon) {
@@ -85,7 +82,6 @@ public class NickClimbingSubsystem extends SubsystemBase {
         }
     }
 
-    @Deprecated
     public void JoyClimb2(double Joy, boolean btuon) {
         ClimbingMotor2.set(Joy);
         if (btuon) {

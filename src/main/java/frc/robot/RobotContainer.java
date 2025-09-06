@@ -57,13 +57,13 @@ public class RobotContainer {
 
   /* Controllers */
   private final Joystick driver = new Joystick(0);
-  private final Joystick rotator = new Joystick(1);
-  private final Joystick operator = new Joystick(2);
-  private final Joystick climber = new Joystick(3);
-  private final Joystick testing = new Joystick(4);
+  private final Joystick operator = new Joystick(1);
+  private final Joystick climber = new Joystick(2);
+  @SuppressWarnings("unused")
+  private final Joystick testing = new Joystick(3);
 
   /* Driver Buttons */
-  private final JoystickButton zeroGyro = new JoystickButton(testing, BACK_BUTTON);
+  private final JoystickButton zeroGyro = new JoystickButton(driver, BACK_BUTTON);
   private final Trigger Slow = new Trigger(new JoystickButton(driver, 7)
       .and(new JoystickButton(driver, 12)))
       .or(new JoystickButton(operator, START_BUTTON));
@@ -109,12 +109,12 @@ public class RobotContainer {
     D.setDefaultCommand(
         new TeleopSwerve(
             D,
-            () -> -testing.getRawAxis(LEFT_X_AXIS),
-            () -> testing.getRawAxis(LEFT_Y_AXIS),
-            () -> -testing.getRawAxis(RIGHT_Y_AXIS),
+            () -> -driver.getRawAxis(LEFT_X_AXIS),
+            () -> driver.getRawAxis(LEFT_Y_AXIS),
+            () -> -driver.getRawAxis(RIGHT_Y_AXIS),
             Slow,
-            () -> testing.getPOV()));
-    new JoystickButton(testing, RED_BUTTON)
+            () -> driver.getPOV()));
+    new JoystickButton(driver, RED_BUTTON)
         .onTrue(new Spin180(D).asProxy());
     /* Operator Controls */
     new JoystickButton(operator, JoystickConstants.BLUE_BUTTON)
@@ -124,9 +124,9 @@ public class RobotContainer {
     new JoystickButton(operator, YELLOW_BUTTON)
         .whileTrue(new OzUp(g));
 
-    /* Testing */
+    /* driver */
 
-    new JoystickButton(testing, YELLOW_BUTTON)
+    new JoystickButton(driver, YELLOW_BUTTON)
         .onTrue(new DriveToLocation(D, new Pose2d(7, 5, new Rotation2d(0))));
 
     System.out.println("Ended configureBindings()");

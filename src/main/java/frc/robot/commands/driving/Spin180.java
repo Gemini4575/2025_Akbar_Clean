@@ -3,7 +3,6 @@ package frc.robot.commands.driving;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
@@ -49,7 +48,9 @@ public class Spin180 extends Command {
     // gave the PID loop
     public boolean rotate(Rotation2d targetAngle) {
         first();
+        @SuppressWarnings("static-access")
         Rotation2d currentAngle = new Rotation2d().fromDegrees(d.getAngle());
+        @SuppressWarnings("static-access")
         double distance_to_target = targetAngle.minus(new Rotation2d().fromDegrees(startAngle).minus(currentAngle))
                 .getDegrees();
         SmartDashboard.putNumber("[DriveTrain]Angle", targetAngle.getDegrees());
@@ -66,6 +67,7 @@ public class Spin180 extends Command {
         return Math.abs(distance_to_target) < 10.0;
     }
 
+    @SuppressWarnings("static-access")
     @Override
     public void execute() {
         isFinished = rotate(new Rotation2d().fromDegrees(180));

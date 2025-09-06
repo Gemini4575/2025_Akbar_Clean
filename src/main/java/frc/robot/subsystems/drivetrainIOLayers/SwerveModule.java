@@ -103,6 +103,11 @@ public class SwerveModule extends SubsystemBase {
 
         retVal = (retVal + angleOffset) % (2.0 * Math.PI); // apply offset for this encoder and map it back onto [0,
                                                            // 2pi]
+
+        if (retVal < 0) {
+            retVal += (2.0 * Math.PI); // map negative values to [0, 2pi]
+        }
+
         // might need this so we're in the same range as the pid controller is
         // expecting.
         // retVal = retVal - Math.PI;
@@ -143,8 +148,9 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         // encode is % rotations
-        var retVal = ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
-                * Math.PI); // distance
+        var retVal = -1.0
+                * ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
+                        * Math.PI); // distance
         // in
         // whatever
         // units
@@ -163,8 +169,9 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, encoderValue());
 
         @SuppressWarnings("deprecation")
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(encoderValue()));
-
+        // SwerveModuleState state = SwerveModuleState.optimize(desiredState, new
+        // Rotation2d(encoderValue()));
+        SwerveModuleState state = desiredState;
         SmartDashboard.putNumber("[Swerve]After Optimize angle target degrees " + moduleNumber,
                 state.angle.getDegrees());
 

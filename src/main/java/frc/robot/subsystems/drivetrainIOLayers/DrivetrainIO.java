@@ -42,10 +42,10 @@ import com.studica.frc.AHRS.NavXUpdateRate;
 
 public class DrivetrainIO extends SubsystemBase {
 
-  private SwerveModule backLeft_0 = new SwerveModule(Mod0.constants);
-  private SwerveModule backRight_1 = new SwerveModule(Mod1.constants);
-  private SwerveModule frontRight_2 = new SwerveModule(Mod2.constants);
-  private SwerveModule frontLeft_3 = new SwerveModule(Mod3.constants);
+  private SwerveModule backLeft_0 = new SwerveModule(Mod2.constants);
+  private SwerveModule backRight_1 = new SwerveModule(Mod3.constants);
+  private SwerveModule frontRight_2 = new SwerveModule(Mod0.constants);
+  private SwerveModule frontLeft_3 = new SwerveModule(Mod1.constants);
 
   private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k100Hz);
 

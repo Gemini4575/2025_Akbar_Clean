@@ -49,8 +49,9 @@ public class SwerveModule extends SubsystemBase {
 
     private double angleOffset;
 
-    private final double distance = 0;
-    private final double previousPosition = 0;
+    private double distance = 0;
+    private double previousPosition = 0;
+    private double wheelDirection = 1.0;
 
     private int moduleNumber;
 
@@ -87,7 +88,9 @@ public class SwerveModule extends SubsystemBase {
             SmartDashboard.putNumber("[Swerve]encoder raw " + moduleNumber, getRawAngle());
         }
 
-        Math.abs(m_driveEncoder.getPosition() - previousPosition);
+        double newPosition = m_driveEncoder.getPosition();
+        distance += wheelDirection * Math.abs(newPosition - previousPosition);
+        previousPosition = newPosition;
 
     }
 
@@ -148,9 +151,12 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         // encode is % rotations
-        var retVal = -1.0
-                * ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
+        var retVal = 1.0
+                * ((distance / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
                         * Math.PI); // distance
+
+        SmartDashboard.putNumber("[Swerve]distance " + moduleNumber, distance);
+
         // in
         // whatever
         // units
@@ -168,10 +174,14 @@ public class SwerveModule extends SubsystemBase {
         // Optimize the reference state to avoid spinning further than 90 degrees
         SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, encoderValue());
 
+        var delta = desiredState.angle.minus(new Rotation2d(encoderValue()));
+        if (Math.abs(delta.getDegrees()) > 90.0) {
+            wheelDirection *= -1;
+        }
+
         @SuppressWarnings("deprecation")
-        // SwerveModuleState state = SwerveModuleState.optimize(desiredState, new
-        // Rotation2d(encoderValue()));
-        SwerveModuleState state = desiredState;
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(encoderValue()));
+
         SmartDashboard.putNumber("[Swerve]After Optimize angle target degrees " + moduleNumber,
                 state.angle.getDegrees());
 

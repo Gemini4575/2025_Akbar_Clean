@@ -139,7 +139,7 @@ public class DrivetrainIO extends SubsystemBase {
     SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getYaw());
 
     var chassisSpeeds = fieldRelative
-        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
         : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
     SmartDashboard.putNumber("[Drivetrain]chassis rot", chassisSpeeds.omegaRadiansPerSecond);
@@ -245,7 +245,7 @@ public class DrivetrainIO extends SubsystemBase {
 
   @Override
   public void periodic() {
-    super.periodic();
+
     poseEstimator.update(gyro.getRotation2d(), getModulePositions());
   }
 

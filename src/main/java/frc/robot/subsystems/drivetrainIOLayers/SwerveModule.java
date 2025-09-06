@@ -49,6 +49,9 @@ public class SwerveModule extends SubsystemBase {
 
     private double angleOffset;
 
+    private final double distance = 0;
+    private final double previousPosition = 0;
+
     private int moduleNumber;
 
     public SwerveModule(SwerveModuleConstants s) {
@@ -83,6 +86,8 @@ public class SwerveModule extends SubsystemBase {
         if (RobotState.isTest()) {
             SmartDashboard.putNumber("[Swerve]encoder raw " + moduleNumber, getRawAngle());
         }
+
+        Math.abs(m_driveEncoder.getPosition() - previousPosition);
 
     }
 
@@ -138,9 +143,8 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         // encode is % rotations
-        var retVal = 1
-                * ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
-                        * Math.PI); // distance
+        var retVal = ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
+                * Math.PI); // distance
         // in
         // whatever
         // units

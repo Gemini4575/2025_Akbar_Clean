@@ -27,17 +27,38 @@ public class DriveToLocation extends Command {
     @Override
     public void execute() {
         var currentPose = driveSubsystem.getPose();
-        double xDiff = targetPose.getX() - currentPose.getX();
-        double yDiff = targetPose.getY() - currentPose.getY();
-        double maxDiff = Math.max(Math.abs(xDiff), Math.abs(yDiff));
-        double xSpeed = xDiff / maxDiff * MAX_SPEED;
-        double ySpeed = yDiff / maxDiff * MAX_SPEED;
+        Double currentPoseX = currentPose.getX();
+        Double currentPoseY = currentPose.getY();
+        Double targetPoseX = targetPose.getX();
+        Double targetPoseY = targetPose.getY();
+
+        Double xDiff = targetPose.getX() - currentPose.getX();
+        Double yDiff = targetPose.getY() - currentPose.getY();
+        Double maxDiff = Math.max(Math.abs(xDiff), Math.abs(yDiff));
+        Double xSpeed = (xDiff / maxDiff) * MAX_SPEED;
+        Double ySpeed = (yDiff / maxDiff) * MAX_SPEED;
+
+        Double targetRotation = targetPose.getRotation().getDegrees();
+        Double currentRotation = currentPose.getRotation().getDegrees();
+        Double rotationDiff = targetRotation - currentRotation;
+
+        rotationDiff = 0.0;
+
+        double rotationSpeed = (rotationDiff / 180) * MAX_SPEED;
+
+        driveSubsystem.log(currentPoseX.toString() + ","
+                + currentPoseY.toString() + ","
+                + targetPoseX.toString() + ","
+                + targetPoseY.toString() + ","
+                + xDiff.toString() + ","
+                + yDiff.toString() + ",");
+
         driveSubsystem.drive(ySpeed, xSpeed, 0, true);
     }
 
     @Override
     public boolean isFinished() {
-        return getDistanceFromTarget() < 0.15; // Finish when within 10 cm of target
+        return getDistanceFromTarget() < 0.5; // Finish when within 10 cm of target
     }
 
     private double getDistanceFromTarget() {

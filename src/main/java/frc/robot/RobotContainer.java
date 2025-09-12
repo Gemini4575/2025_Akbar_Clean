@@ -110,7 +110,7 @@ public class RobotContainer {
         new TeleopSwerve(
             D,
             () -> -driver.getRawAxis(LEFT_X_AXIS),
-            () -> driver.getRawAxis(LEFT_Y_AXIS),
+            () -> -driver.getRawAxis(LEFT_Y_AXIS),
             () -> -driver.getRawAxis(RIGHT_Y_AXIS),
             Slow,
             () -> driver.getPOV()));

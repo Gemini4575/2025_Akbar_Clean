@@ -22,6 +22,7 @@ import frc.robot.Constants.SwerveConstants.Mod3;
 
 import static frc.robot.Constants.SwerveConstants.*;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -61,11 +62,24 @@ public class DrivetrainIO extends SubsystemBase {
   private SwerveSetpoint previousSetpoint;
   private RobotConfig config;
 
+  private final FileWriter logFileWriter;
+
+  // 67!!!!
   public double getAngle() {
     return gyro.getAngle();
   }
 
   public DrivetrainIO() {
+
+    try {
+      logFileWriter = new FileWriter("/home/lvuser/drivelog.txt", false);
+      logFileWriter
+          .write(
+              "time,gyro,m0distance,m0degrees,m1distance,m1degrees,m2distance,m2degrees,m3distance,m3degrees,estX,estY,estDegrees, \n");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
     gyro.reset();
     try {
       config = RobotConfig.fromGUISettings();
@@ -84,8 +98,8 @@ public class DrivetrainIO extends SubsystemBase {
         stateStdDevs,
         visionStdDevs);
 
-    poseEstimator.resetPosition(new Rotation2d(180), getModulePositions(),
-        new Pose2d(7.558, 4.010, new Rotation2d(180)));
+    poseEstimator.resetPosition(new Rotation2d(0), getModulePositions(),
+        new Pose2d(7.558, 4.010, new Rotation2d(90)));
 
     configureAutoBuilder();
 
@@ -137,7 +151,7 @@ public class DrivetrainIO extends SubsystemBase {
     SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getYaw());
 
     var chassisSpeeds = fieldRelative
-        ? ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
         : new ChassisSpeeds(xSpeed, ySpeed, rot);
 
     SmartDashboard.putNumber("[Drivetrain]chassis rot", chassisSpeeds.omegaRadiansPerSecond);
@@ -239,10 +253,31 @@ public class DrivetrainIO extends SubsystemBase {
     poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
   }
 
+  private String incomingLog = "";
+
+  public void log(String s) {
+    incomingLog += s;
+  }
+
   @Override
   public void periodic() {
-
-    poseEstimator.update(gyro.getRotation2d(), getModulePositions());
+    var gyroRot = gyro.getRotation2d();
+    var modulePos = getModulePositions();
+    poseEstimator.update(gyroRot, modulePos);
+    try {
+      var pose = poseEstimator.getEstimatedPosition();
+      logFileWriter
+          .write(System.currentTimeMillis() + "," + gyroRot.getDegrees() + "," + modulePos[0].distanceMeters + ","
+              + modulePos[0].angle.getDegrees() + ","
+              + modulePos[1].distanceMeters + "," + modulePos[1].angle.getDegrees() + ","
+              + modulePos[2].distanceMeters + "," + modulePos[2].angle.getDegrees() + "," + modulePos[3].distanceMeters
+              + "," + modulePos[3].angle.getDegrees() + "," + pose.getX() + "," + pose.getY() + ","
+              + pose.getRotation().getDegrees() + ","
+              + incomingLog + "\n");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
 }

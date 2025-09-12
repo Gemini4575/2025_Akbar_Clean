@@ -152,7 +152,7 @@ public class SwerveModule extends SubsystemBase {
     public SwerveModulePosition getPosition() {
         // encode is % rotations
         var retVal = 1.0
-                * ((distance / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
+                * ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
                         * Math.PI); // distance
 
         SmartDashboard.putNumber("[Swerve]distance " + moduleNumber, distance);

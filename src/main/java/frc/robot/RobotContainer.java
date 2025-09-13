@@ -127,7 +127,7 @@ public class RobotContainer {
     /* driver */
 
     new JoystickButton(driver, YELLOW_BUTTON)
-        .onTrue(new DriveToLocation(D, new Pose2d(7, 5, new Rotation2d(0))));
+        .onTrue(new DriveToLocation(D, new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90))));
 
     System.out.println("Ended configureBindings()");
   }

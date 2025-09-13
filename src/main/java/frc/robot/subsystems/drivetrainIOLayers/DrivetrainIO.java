@@ -39,6 +39,8 @@ import com.studica.frc.AHRS.NavXUpdateRate;
 
 public class DrivetrainIO extends SubsystemBase {
 
+  private static final boolean shouldLogToFile = false;
+
   private SwerveModule backLeft_0 = new SwerveModule(Mod2.constants);
   private SwerveModule backRight_1 = new SwerveModule(Mod3.constants);
   private SwerveModule frontRight_2 = new SwerveModule(Mod0.constants);
@@ -80,11 +82,7 @@ public class DrivetrainIO extends SubsystemBase {
       throw new RuntimeException(e);
     }
 
-    gyro.reset();
-    // we need to start at this offset otherwise our axis are reversed
-    // note: docs say gyro should increase counterclockwise. ours decreases. may
-    // need to look into this.
-    gyro.setAngleAdjustment(-90);
+    ResetGyro();
     try {
       config = RobotConfig.fromGUISettings();
     } catch (IOException | org.json.simple.parser.ParseException e) {
@@ -103,7 +101,7 @@ public class DrivetrainIO extends SubsystemBase {
         visionStdDevs);
 
     poseEstimator.resetPosition(new Rotation2d(-90), getModulePositions(),
-        new Pose2d(7.558, 4.010, new Rotation2d(90)));
+        new Pose2d(7.558, 4.010, new Rotation2d(-90)));
 
     configureAutoBuilder();
 
@@ -184,7 +182,10 @@ public class DrivetrainIO extends SubsystemBase {
 
   public void ResetGyro() {
     gyro.reset();
-
+    // we need to start at this offset otherwise our axis are reversed
+    // note: docs say gyro should increase counterclockwise. ours decreases. may
+    // need to look into this.
+    gyro.setAngleAdjustment(-90);
     SmartDashboard.putString("[Drivetrain]Gyro has been reset", java.time.LocalTime.now().toString());
     System.out.println("Gyro has been reset");
   }
@@ -260,7 +261,9 @@ public class DrivetrainIO extends SubsystemBase {
   private String incomingLog = "";
 
   public void log(String s) {
-    incomingLog += s;
+    if (shouldLogToFile) {
+      incomingLog += s;
+    }
   }
 
   @Override
@@ -270,14 +273,17 @@ public class DrivetrainIO extends SubsystemBase {
     poseEstimator.update(gyroRot, modulePos);
     try {
       var pose = poseEstimator.getEstimatedPosition();
-      logFileWriter
-          .write(System.currentTimeMillis() + "," + gyroRot.getDegrees() + "," + modulePos[0].distanceMeters + ","
-              + modulePos[0].angle.getDegrees() + ","
-              + modulePos[1].distanceMeters + "," + modulePos[1].angle.getDegrees() + ","
-              + modulePos[2].distanceMeters + "," + modulePos[2].angle.getDegrees() + "," + modulePos[3].distanceMeters
-              + "," + modulePos[3].angle.getDegrees() + "," + pose.getX() + "," + pose.getY() + ","
-              + pose.getRotation().getDegrees() + ","
-              + incomingLog + "\n");
+      if (shouldLogToFile) {
+        logFileWriter
+            .write(System.currentTimeMillis() + "," + gyroRot.getDegrees() + "," + modulePos[0].distanceMeters + ","
+                + modulePos[0].angle.getDegrees() + ","
+                + modulePos[1].distanceMeters + "," + modulePos[1].angle.getDegrees() + ","
+                + modulePos[2].distanceMeters + "," + modulePos[2].angle.getDegrees() + ","
+                + modulePos[3].distanceMeters
+                + "," + modulePos[3].angle.getDegrees() + "," + pose.getX() + "," + pose.getY() + ","
+                + pose.getRotation().getDegrees() + ","
+                + incomingLog + "\n");
+      }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

@@ -67,7 +67,7 @@ public final class Constants {
                 public static final double MaxMetersPersecond = 4.47;// 3.264903459; //4.47 This is calculated 5676rpm,
                                                                      // 4in
                                                                      // wheels, 6.75 gearbox
-                public static final double kWheelRadius = 0.0508;
+                public static final double kWheelRadius = 0.04648915887; // 0.0508;
                 public static final double kModuleMaxAngularVelocity = 27.73816874; // This is calculated 5676rpm,
                                                                                     // 150/7:1
                                                                                     // gearbox in radians. 594.380 deg/s

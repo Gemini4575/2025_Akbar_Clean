@@ -398,4 +398,44 @@ public class PoseEstimationTest {
                 System.out.println("New pose: " + poseEstimator.getEstimatedPosition());
         }
 
+        @Test
+        public void test_correctRobotConfig2() {
+                var startTime = System.currentTimeMillis() / 1000;
+
+                var initialGyroPose = Rotation2d.fromDegrees(-90);
+
+                var initialModulePositions = new SwerveModulePosition[] {
+                                new SwerveModulePosition(0.0, Rotation2d.fromDegrees(0)),
+                                new SwerveModulePosition(0.0, Rotation2d.fromDegrees(0)),
+                                new SwerveModulePosition(0.0, Rotation2d.fromDegrees(0)),
+                                new SwerveModulePosition(0.0, Rotation2d.fromDegrees(0))
+                };
+
+                var poseEstimator = new SwerveDrivePoseEstimator(
+                                m_kinematics,
+                                initialGyroPose,
+                                initialModulePositions,
+                                new Pose2d(),
+                                stateStdDevs,
+                                visionStdDevs);
+
+                poseEstimator.resetPosition(Rotation2d.fromDegrees(-90), initialModulePositions,
+                                new Pose2d(1, 1, Rotation2d.fromDegrees(90)));
+
+                System.out.println("Initial pose: " + poseEstimator.getEstimatedPosition());
+
+                var modulePosition2 = new SwerveModulePosition[] {
+                                new SwerveModulePosition(1.0, Rotation2d.fromDegrees(0)),
+                                new SwerveModulePosition(1.0, Rotation2d.fromDegrees(0)),
+                                new SwerveModulePosition(1.0, Rotation2d.fromDegrees(0)),
+                                new SwerveModulePosition(1.0, Rotation2d.fromDegrees(0))
+                };
+
+                var gyroPose2 = Rotation2d.fromDegrees(-90);
+
+                poseEstimator.updateWithTime(startTime + 1, gyroPose2, modulePosition2);
+
+                System.out.println("New pose: " + poseEstimator.getEstimatedPosition());
+        }
+
 }

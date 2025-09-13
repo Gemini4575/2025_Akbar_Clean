@@ -8,7 +8,7 @@ import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 public class DriveToLocation extends Command {
 
-    private static final double MAX_SPEED = 0.2;
+    private static final double MAX_SPEED = 0.1;
 
     private final Pose2d targetPose;
     private final DrivetrainIO driveSubsystem;
@@ -53,12 +53,14 @@ public class DriveToLocation extends Command {
                 + xDiff.toString() + ","
                 + yDiff.toString() + ",");
 
-        driveSubsystem.drive(ySpeed, xSpeed, 0, true);
+        driveSubsystem.drive(xSpeed, ySpeed, 0, true);
     }
 
     @Override
     public boolean isFinished() {
-        return getDistanceFromTarget() < 0.5; // Finish when within 10 cm of target
+        var distance = getDistanceFromTarget();
+        SmartDashboard.putNumber("DriveToLocation - Distance", distance);
+        return distance < 0.2; // Finish when within 10 cm of target
     }
 
     private double getDistanceFromTarget() {

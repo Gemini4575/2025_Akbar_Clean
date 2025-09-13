@@ -81,6 +81,10 @@ public class DrivetrainIO extends SubsystemBase {
     }
 
     gyro.reset();
+    // we need to start at this offset otherwise our axis are reversed
+    // note: docs say gyro should increase counterclockwise. ours decreases. may
+    // need to look into this.
+    gyro.setAngleAdjustment(-90);
     try {
       config = RobotConfig.fromGUISettings();
     } catch (IOException | org.json.simple.parser.ParseException e) {
@@ -98,7 +102,7 @@ public class DrivetrainIO extends SubsystemBase {
         stateStdDevs,
         visionStdDevs);
 
-    poseEstimator.resetPosition(new Rotation2d(0), getModulePositions(),
+    poseEstimator.resetPosition(new Rotation2d(-90), getModulePositions(),
         new Pose2d(7.558, 4.010, new Rotation2d(90)));
 
     configureAutoBuilder();
@@ -148,7 +152,7 @@ public class DrivetrainIO extends SubsystemBase {
     xSpeed_cur = xSpeed;
     ySpeed_cur = ySpeed;
     rot_cur = rot + Rotate_Rot;
-    SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getYaw());
+    SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getAngle());
 
     var chassisSpeeds = fieldRelative
         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())

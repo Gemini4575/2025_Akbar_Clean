@@ -1,6 +1,9 @@
 package frc.robot.subsystems.drivetrainIOLayers;
 
 import com.revrobotics.spark.SparkMax;
+
+import static frc.robot.Constants.SwerveConstants.MOTOR_MAX_RPM;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -9,6 +12,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -41,6 +45,8 @@ public class SwerveModule extends SubsystemBase {
     // SwerveConstants.MaxMetersPersecond,
     // SwerveConstants.kMaxAceceration));
 
+    private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
+
     private SparkMax driveMotor;
     private SparkMax angleMotor;
 
@@ -65,6 +71,9 @@ public class SwerveModule extends SubsystemBase {
         driveMotorConfig.inverted(true);
         driveMotorConfig.idleMode(IdleMode.kBrake);
         angleMotorConfig.apply(driveMotorConfig);
+
+        driveMotorConfig.signals.primaryEncoderPositionAlwaysOn(true);
+        driveMotorConfig.signals.primaryEncoderPositionPeriodMs(5);
 
         driveMotor.configure(driveMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         angleMotor.configure(angleMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -144,6 +153,10 @@ public class SwerveModule extends SubsystemBase {
                 * ((SwerveConstants.kWheelRadius * 2) * Math.PI);
     }
 
+    private double getCurrentSpeedAsPercentage() {
+        return m_driveEncoder.getVelocity() / MOTOR_MAX_RPM;
+    }
+
     /**
      * Returns the current position of the module.
      *
@@ -196,16 +209,21 @@ public class SwerveModule extends SubsystemBase {
 
         SmartDashboard.putNumber("[Swerve]Setpoint velocity", turningPidController.getSetpoint().velocity);
 
-        driveMotor.set(state.speedMetersPerSecond);
+        final double driveOutput = desiredState.speedMetersPerSecond;
+        // TODO figure out why this doesnt work.. may be speed is always positive
+        // m_drivePIDController.calculate(getCurrentSpeedAsPercentage(),
+        // desiredState.speedMetersPerSecond);
+        driveMotor.set(driveOutput);
 
         angleMotor.set((turnOutput / SwerveConstants.kModuleMaxAngularVelocity));
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor set " + moduleNumber,
-                state.speedMetersPerSecond);
+                driveOutput);
         SmartDashboard.putNumber("[Swerve]m_turningMotor set " + moduleNumber,
                 turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor actual" + moduleNumber, getConvertedVelocity());
+        SmartDashboard.putNumber("[Swerve]m_driveMotor velocity" + moduleNumber, getCurrentSpeedAsPercentage());
         SmartDashboard.putNumber("[Swerve]m_driveMotor get" + moduleNumber, driveMotor.get());
         SmartDashboard.putNumber("[Swerve]m_turningMotor actual" + moduleNumber, angleMotor.get());
 

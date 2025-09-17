@@ -13,6 +13,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N3;
@@ -436,6 +437,12 @@ public class PoseEstimationTest {
                 poseEstimator.updateWithTime(startTime + 1, gyroPose2, modulePosition2);
 
                 System.out.println("New pose: " + poseEstimator.getEstimatedPosition());
+        }
+
+        @Test
+        public void test_discretize() {
+                var speed = new ChassisSpeeds(1.0, 1.0, Math.PI);
+                System.out.println(ChassisSpeeds.discretize(speed, 0.02));
         }
 
 }

@@ -64,6 +64,8 @@ public final class Constants {
                 public static final Translation2d m_frontLeftLocation = new Translation2d(MODULE_OFFSET_X,
                                 MODULE_OFFSET_Y);
 
+                public static final double MOTOR_MAX_RPM = 5676.0;
+
                 public static final double MaxMetersPersecond = 4.47;// 3.264903459; //4.47 This is calculated 5676rpm,
                                                                      // 4in
                                                                      // wheels, 6.75 gearbox

@@ -152,9 +152,11 @@ public class DrivetrainIO extends SubsystemBase {
     rot_cur = rot + Rotate_Rot;
     SmartDashboard.putNumber("[Drivetrain]Gyro", gyro.getAngle());
 
-    var chassisSpeeds = fieldRelative
+    var sourceChassisSpeeds = fieldRelative
         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot + Rotate_Rot, gyro.getRotation2d())
         : new ChassisSpeeds(xSpeed, ySpeed, rot);
+
+    var chassisSpeeds = ChassisSpeeds.discretize(sourceChassisSpeeds, 0.02);
 
     SmartDashboard.putNumber("[Drivetrain]chassis rot", chassisSpeeds.omegaRadiansPerSecond);
     SmartDashboard.putNumber("[Drivetrain]chassis xSpeed", chassisSpeeds.vxMetersPerSecond);

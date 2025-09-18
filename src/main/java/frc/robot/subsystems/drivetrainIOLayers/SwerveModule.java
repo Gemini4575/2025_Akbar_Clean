@@ -45,7 +45,7 @@ public class SwerveModule extends SubsystemBase {
     // SwerveConstants.MaxMetersPersecond,
     // SwerveConstants.kMaxAceceration));
 
-    private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
+    private final PIDController m_drivePIDController = new PIDController(1.75, 0, 0.05);
 
     private SparkMax driveMotor;
     private SparkMax angleMotor;
@@ -182,6 +182,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void SetDesiredState(SwerveModuleState desiredState) {
+        SmartDashboard.putNumber("Speed " + moduleNumber, getCurrentSpeedAsPercentage());
         SmartDashboard.putNumber("[Swerve]Pre Optimize angle target degrees " + moduleNumber,
                 desiredState.angle.getDegrees());
         // Optimize the reference state to avoid spinning further than 90 degrees
@@ -209,10 +210,8 @@ public class SwerveModule extends SubsystemBase {
 
         SmartDashboard.putNumber("[Swerve]Setpoint velocity", turningPidController.getSetpoint().velocity);
 
-        final double driveOutput = desiredState.speedMetersPerSecond;
-        // TODO figure out why this doesnt work.. may be speed is always positive
-        // m_drivePIDController.calculate(getCurrentSpeedAsPercentage(),
-        // desiredState.speedMetersPerSecond);
+        final double driveOutput = m_drivePIDController.calculate(getCurrentSpeedAsPercentage(),
+                state.speedMetersPerSecond);
         driveMotor.set(driveOutput);
 
         angleMotor.set((turnOutput / SwerveConstants.kModuleMaxAngularVelocity));

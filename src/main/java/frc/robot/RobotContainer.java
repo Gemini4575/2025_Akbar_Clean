@@ -29,6 +29,7 @@ import frc.robot.commands.driving.DriveToLocation;
 import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
+import frc.robot.model.PathContainer;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
 import frc.robot.subsystems.OzzyGrabberSubsystem;
@@ -127,7 +128,11 @@ public class RobotContainer {
     /* driver */
 
     new JoystickButton(driver, YELLOW_BUTTON)
-        .onTrue(new DriveToLocation(D, new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90))));
+        .onTrue(new DriveToLocation(D,
+            new PathContainer()
+                .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Pose2d(7.5, 3.5, Rotation2d.fromDegrees(-45)))
+                .addWaypoint(new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90)))));
 
     System.out.println("Ended configureBindings()");
   }

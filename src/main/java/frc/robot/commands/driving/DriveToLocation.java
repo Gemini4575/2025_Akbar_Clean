@@ -10,22 +10,27 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.model.PathContainer;
 import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 public class DriveToLocation extends Command {
 
+    private static final double MAX_SPEED_GLOBAL = 1.0;
     private static final TreeMap<Double, Double> MAX_SPEEDS = new TreeMap<>(
             Map.of(0.0, 0.1, 0.2, 0.2, 0.5, 0.25, 1.5, 1.0));
 
-    private final Pose2d targetPose;
+    private final PathContainer pathContainer;
     private final DrivetrainIO driveSubsystem;
+
+    private int segmentIdx = 0;
+
     private final Field2d targetField = new Field2d();
 
-    public DriveToLocation(DrivetrainIO driveSubsystem, Pose2d targetPose) {
+    public DriveToLocation(DrivetrainIO driveSubsystem, PathContainer pathContainer) {
         this.driveSubsystem = driveSubsystem;
-        this.targetPose = targetPose;
+        this.pathContainer = pathContainer;
 
-        targetField.setRobotPose(targetPose);
+        targetField.setRobotPose(pathContainer.getWaypoints().get(0));
         SmartDashboard.putData("[DriveToLocation] Target Pose", targetField);
 
         addRequirements(driveSubsystem);
@@ -44,6 +49,7 @@ public class DriveToLocation extends Command {
         var currentPose = driveSubsystem.getPose();
         Double currentPoseX = currentPose.getX();
         Double currentPoseY = currentPose.getY();
+        var targetPose = pathContainer.getWaypoints().get(segmentIdx);
         Double targetPoseX = targetPose.getX();
         Double targetPoseY = targetPose.getY();
 
@@ -72,8 +78,17 @@ public class DriveToLocation extends Command {
     }
 
     private Double getMaxSpeed(Pair<Double, Double> distanceFromTarget) {
-        var speedEntry = MAX_SPEEDS.floorEntry(distanceFromTarget.getFirst());
-        return speedEntry == null ? MAX_SPEEDS.firstEntry().getValue() : speedEntry.getValue();
+        if (locationNeedsToBePrecise()) {
+            var speedEntry = MAX_SPEEDS.floorEntry(distanceFromTarget.getFirst());
+            return speedEntry == null ? MAX_SPEEDS.firstEntry().getValue() : speedEntry.getValue();
+        } else {
+            return MAX_SPEED_GLOBAL;
+        }
+    }
+
+    private boolean locationNeedsToBePrecise() {
+        // slow down for last segment
+        return segmentIdx == pathContainer.getWaypoints().size() - 1;
     }
 
     @Override
@@ -81,12 +96,24 @@ public class DriveToLocation extends Command {
         var distance = getDistanceFromTarget();
         SmartDashboard.putNumber("DriveToLocation - Distance", distance.getFirst());
         SmartDashboard.putNumber("DriveToLocation - Angular Distance", distance.getSecond());
-        return distance.getFirst() < 0.05 // Finish when within 10 cm of target
+        boolean isCloseEnough = distance.getFirst() < 0.05 // Finish when within 10 cm of target
                 && Math.abs(distance.getSecond()) < 5 * Math.PI / 180; // within 5 degrees
+        if (isCloseEnough) {
+            if (segmentIdx < pathContainer.getWaypoints().size() - 1) {
+                segmentIdx++;
+                targetField.setRobotPose(pathContainer.getWaypoints().get(segmentIdx));
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     private Pair<Double, Double> getDistanceFromTarget() {
         var pose = driveSubsystem.getPose();
+        var targetPose = pathContainer.getWaypoints().get(segmentIdx);
         var rawAngularDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
         var optimizedAngularDiff = optimizeAngle(rawAngularDiff);
         return Pair.of(pose.getTranslation().getDistance(targetPose.getTranslation()),

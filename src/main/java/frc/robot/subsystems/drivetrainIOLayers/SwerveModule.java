@@ -29,9 +29,9 @@ import frc.robot.Constants.SwerveConstants;
 public class SwerveModule extends SubsystemBase {
 
     private ProfiledPIDController turningPidController = new ProfiledPIDController(
-            16, // Proportional gain
+            3.5, // Proportional gain
             0.0, // Integral gain
-            0.0,
+            0.01,
             new TrapezoidProfile.Constraints(
                     SwerveConstants.kModuleMaxAngularVelocity,
                     SwerveConstants.kModuleMaxAngularAcceleration));
@@ -45,7 +45,7 @@ public class SwerveModule extends SubsystemBase {
     // SwerveConstants.MaxMetersPersecond,
     // SwerveConstants.kMaxAceceration));
 
-    private final PIDController m_drivePIDController = new PIDController(1.75, 0, 0.05);
+    private final PIDController m_drivePIDController = new PIDController(1.6, 0, 0.05);
 
     private SparkMax driveMotor;
     private SparkMax angleMotor;
@@ -211,10 +211,10 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("[Swerve]Setpoint velocity", turningPidController.getSetpoint().velocity);
 
         final double driveOutput = m_drivePIDController.calculate(getCurrentSpeedAsPercentage(),
-                state.speedMetersPerSecond);
+                state.speedMetersPerSecond) * state.angle.minus(Rotation2d.fromRadians(encoderValue())).getCos();
         driveMotor.set(driveOutput);
 
-        angleMotor.set((turnOutput / SwerveConstants.kModuleMaxAngularVelocity));
+        angleMotor.set((turnOutput / Math.PI));
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor set " + moduleNumber,
                 driveOutput);
@@ -229,15 +229,13 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber("[Swerve]drive encoder" + moduleNumber, m_driveEncoder.getPosition());
         SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, encoderValue());
 
-        if (RobotState.isTest()) {
-            SmartDashboard.putNumber("[Swerve]turnOutput", turnOutput);
-            // SmartDashboard.putNumber("[Swerve]Drive", ((driveOutput + driveFeedforward)
-            // /2.1) /2);
-            // SmartDashboard.putNumber("[Swerve]Turning stuff", Math.max(turnOutput,
-            // turnFeedforward));
-            // SmartDashboard.putNumber("[Swerve]Turning stuff", turnOutput +
-            // turnFeedforward);
-            SmartDashboard.putNumber("[Swerve]target " + moduleNumber, state.angle.getRadians());
-        }
+        SmartDashboard.putNumber("[Swerve]turnOutput", turnOutput);
+        // SmartDashboard.putNumber("[Swerve]Drive", ((driveOutput + driveFeedforward)
+        // /2.1) /2);
+        // SmartDashboard.putNumber("[Swerve]Turning stuff", Math.max(turnOutput,
+        // turnFeedforward));
+        // SmartDashboard.putNumber("[Swerve]Turning stuff", turnOutput +
+        // turnFeedforward);
+        SmartDashboard.putNumber("[Swerve]target " + moduleNumber, state.angle.getRadians());
     }
 }

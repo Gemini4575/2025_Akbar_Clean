@@ -13,11 +13,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.model.PathContainer;
 import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
+// TODO we need to handle alliance colors somewhere
+
 public class DriveToLocation extends Command {
 
+    private static final double TURN_PRECISION = 5 * Math.PI / 180;
     private static final double MAX_SPEED_GLOBAL = 1.0;
     private static final TreeMap<Double, Double> MAX_SPEEDS = new TreeMap<>(
             Map.of(0.0, 0.1, 0.2, 0.2, 0.5, 0.25, 1.5, 1.0));
+
+    private static final double MAX_ANGULAR_SPEED = Math.PI; // radians per second
+
+    private static final double DRIVE_PRECISION = 0.05; // meters
 
     private final PathContainer pathContainer;
     private final DrivetrainIO driveSubsystem;
@@ -30,10 +37,16 @@ public class DriveToLocation extends Command {
         this.driveSubsystem = driveSubsystem;
         this.pathContainer = pathContainer;
 
-        targetField.setRobotPose(pathContainer.getWaypoints().get(0));
-        SmartDashboard.putData("[DriveToLocation] Target Pose", targetField);
+        initialize();
 
         addRequirements(driveSubsystem);
+    }
+
+    @Override
+    public void initialize() {
+        segmentIdx = 0;
+        targetField.setRobotPose(pathContainer.getWaypoints().get(0));
+        SmartDashboard.putData("[DriveToLocation] Target Pose", targetField);
     }
 
     // TODO problems we need to smooth out
@@ -67,6 +80,12 @@ public class DriveToLocation extends Command {
         double rotationSpeed = calcAngularSpeed(rotationDiff,
                 calcRemainingTime(distanceFromTarget.getFirst(), maxSpeed));
 
+        if (distanceFromTarget.getFirst() < DRIVE_PRECISION) {
+            // stop moving if we reach close enough to target
+            xSpeed = 0.0;
+            ySpeed = 0.0;
+        }
+
         driveSubsystem.log(currentPoseX.toString() + ","
                 + currentPoseY.toString() + ","
                 + targetPoseX.toString() + ","
@@ -96,19 +115,16 @@ public class DriveToLocation extends Command {
         var distance = getDistanceFromTarget();
         SmartDashboard.putNumber("DriveToLocation - Distance", distance.getFirst());
         SmartDashboard.putNumber("DriveToLocation - Angular Distance", distance.getSecond());
-        boolean isCloseEnough = distance.getFirst() < 0.05 // Finish when within 10 cm of target
-                && Math.abs(distance.getSecond()) < 5 * Math.PI / 180; // within 5 degrees
-        if (isCloseEnough) {
-            if (segmentIdx < pathContainer.getWaypoints().size() - 1) {
+
+        if (segmentIdx < pathContainer.getWaypoints().size() - 1) {
+            if (distance.getFirst() < DRIVE_PRECISION) {
                 segmentIdx++;
                 targetField.setRobotPose(pathContainer.getWaypoints().get(segmentIdx));
-                return false;
-            } else {
-                return true;
             }
-        } else {
             return false;
         }
+        return distance.getFirst() < DRIVE_PRECISION // Finish when within 10 cm of target
+                && Math.abs(distance.getSecond()) < TURN_PRECISION; // within 5 degrees
     }
 
     private Pair<Double, Double> getDistanceFromTarget() {
@@ -137,10 +153,19 @@ public class DriveToLocation extends Command {
     }
 
     private double calcAngularSpeed(double angularDiff, double remainingDriveTime) {
-        if (remainingDriveTime > 0.5) {
-            return angularDiff / (2.0 * remainingDriveTime);
+        return Math.max(-MAX_ANGULAR_SPEED,
+                Math.min(MAX_ANGULAR_SPEED,
+                        calcAngularSpeedRaw(angularDiff, remainingDriveTime)));
+    }
+
+    private double calcAngularSpeedRaw(double angularDiff, double remainingDriveTime) {
+        if (!locationNeedsToBePrecise() && remainingDriveTime < 0.05) {
+            return 0.0;
         }
-        return Math.signum(angularDiff) * Math.min(Math.abs(angularDiff), Math.PI / 2);
+        if (remainingDriveTime > 0.2) {
+            return angularDiff / (remainingDriveTime);
+        }
+        return angularDiff;
     }
 
 }

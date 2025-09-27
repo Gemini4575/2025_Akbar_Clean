@@ -58,6 +58,7 @@ public class DrivetrainIO extends SubsystemBase {
       m_frontRightLocation, m_frontLeftLocation);
 
   private final SwerveDrivePoseEstimator poseEstimator;
+  private long lastVisionUpdateTime = 0;
 
   @SuppressWarnings("unused")
   private final SwerveSetpointGenerator setpointGenerator;
@@ -260,6 +261,11 @@ public class DrivetrainIO extends SubsystemBase {
   public void addVisionMeasurement(
       Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
     poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+    lastVisionUpdateTime = System.currentTimeMillis();
+  }
+
+  public long visionUpdateDelayMillis() {
+    return System.currentTimeMillis() - lastVisionUpdateTime;
   }
 
   private String incomingLog = "";
@@ -292,6 +298,8 @@ public class DrivetrainIO extends SubsystemBase {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+
+    SmartDashboard.putNumber("Vision Update delay", visionUpdateDelayMillis());
   }
 
 }

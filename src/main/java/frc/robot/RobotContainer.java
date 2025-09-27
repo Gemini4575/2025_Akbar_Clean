@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.JoystickConstants;
 import frc.robot.commands.algea.EXO.OzDown;
 import frc.robot.commands.algea.EXO.OzUp;
+import frc.robot.commands.auto.DropOne;
 import frc.robot.commands.coral.lili.AUTOCoral;
 import frc.robot.commands.coral.lili.AUTOCoralFalse;
 import frc.robot.commands.coral.lili.EXOCloseGate;
@@ -37,6 +38,7 @@ import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 import frc.robot.subsystems.Vision;
 
 import static frc.robot.Constants.JoystickConstants.*;
+import static frc.robot.LocationData.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -147,11 +149,12 @@ public class RobotContainer {
     /* driver */
 
     new JoystickButton(driver, YELLOW_BUTTON)
-        .onTrue(new DriveToLocation(D, lc,
-            new PathContainer()
-                .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))
-                // .addWaypoint(new Pose2d(7.5, 3.5, Rotation2d.fromDegrees(-45)))
-                .addWaypoint(new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90)), 0.23)));
+        .onTrue(new DropOne(D, lc, c, START_TO_REEF_FRONT_LEFT));
+    // new DriveToLocation(D, lc,
+    // new PathContainer()
+    // .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))
+    // // .addWaypoint(new Pose2d(7.5, 3.5, Rotation2d.fromDegrees(-45)))
+    // .addWaypoint(new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90)), 0.23)));
 
     System.out.println("Ended configureBindings()");
   }
@@ -159,7 +162,10 @@ public class RobotContainer {
   public void Periodic() {
     updateVisionEst();
     overallPoseEstimate.setRobotPose(D.getPose());
-    SmartDashboard.putNumber("LaserCan Distance", lc.getMeasurement().distance_mm / 1000.0);
+    var laserMeasure = lc.getMeasurement();
+    if (laserMeasure != null) {
+      SmartDashboard.putNumber("LaserCan Distance", laserMeasure.distance_mm / 1000.0);
+    }
   }
 
   public void teleopPeriodic() {

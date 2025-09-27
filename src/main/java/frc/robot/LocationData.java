@@ -11,6 +11,11 @@ public class LocationData {
     // points of interest
     public static final Pose2d REEF_FRONT = new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90));
     public static final Pose2d REEF_FRONT_LEFT = new Pose2d(5.124, 2.928, Rotation2d.fromDegrees(30));
+    public static final Pose2d REEF_FRONT_RIGHT = new Pose2d(5.139, 5.107, Rotation2d.fromDegrees(150));
+    public static final Pose2d REEF_BACK = new Pose2d(3.231, 4.055, Rotation2d.fromDegrees(-90));
+    public static final Pose2d REEF_BACK_LEFT = new Pose2d(3.817, 2.943, Rotation2d.fromDegrees(-30));
+    public static final Pose2d REEF_BACK_RIGHT = new Pose2d(3.847, 5.122, Rotation2d.fromDegrees(-150));
+    public static final Pose2d CORAL_STATION = new Pose2d(1.112, 0.945, Rotation2d.fromDegrees(143));
 
     // paths
     public static final PathContainer START_TO_REEF_FRONT = new PathContainer()

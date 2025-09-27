@@ -25,6 +25,7 @@ public class DriveToLocation extends Command {
     private static final double MAX_ANGULAR_SPEED = Math.PI / 2; // radians per second
 
     private static final double DRIVE_PRECISION = 0.05; // meters
+    private static final double LASER_DRIVING_STUCK_THRESHOLD = 0.5; // meters
 
     private static final int VISION_DELAY_TOLERANCE = 500; // milliseconds
     private static final double VISION_CORRECTION = 0.2; // multiplier for time driven without vision vs time with
@@ -40,6 +41,7 @@ public class DriveToLocation extends Command {
     private long segmentDriveWithoutVisionStartTime = 0;
     private boolean startedDrivingWithoutVision = false;
     private boolean laserGuidedDrive = false;
+    private Pose2d laserGuidedStartingPoint;
 
     private final Field2d targetField = new Field2d();
 
@@ -92,7 +94,10 @@ public class DriveToLocation extends Command {
                 && !isDistanceCloseEnough(distanceFromTarget.getFirst()))) {
             // we are close enough to be guided by laser distance
             // TODO we need to parametrize these values but testing for now
-            laserGuidedDrive = true;
+            if (!laserGuidedDrive) {
+                laserGuidedDrive = true;
+                laserGuidedStartingPoint = currentPose;
+            }
             driveSubsystem.drive(0, LASER_GUIDED_SPEED, 0, false);
         } else {
 
@@ -207,7 +212,11 @@ public class DriveToLocation extends Command {
             if (laserDistance == null || laserCan == null) {
                 return true;
             }
-            return Math.abs(laserDistance - (laserCan.getMeasurement().distance_mm / 1000.0)) < DRIVE_PRECISION;
+            // detect if we are stuck and not moving
+            double laserDrivenDistance = laserGuidedStartingPoint.getTranslation()
+                    .getDistance(driveSubsystem.getPose().getTranslation());
+            return laserDrivenDistance > LASER_DRIVING_STUCK_THRESHOLD
+                    || Math.abs(laserDistance - (laserCan.getMeasurement().distance_mm / 1000.0)) < DRIVE_PRECISION;
         }
         return false;
     }

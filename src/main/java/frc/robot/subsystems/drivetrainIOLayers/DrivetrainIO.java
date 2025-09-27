@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.util.CoordinateConverter;
 import frc.robot.Constants.SwerveConstants.Mod0;
 import frc.robot.Constants.SwerveConstants.Mod1;
 import frc.robot.Constants.SwerveConstants.Mod2;
@@ -100,8 +101,9 @@ public class DrivetrainIO extends SubsystemBase {
         stateStdDevs,
         visionStdDevs);
 
-    poseEstimator.resetPosition(new Rotation2d(-90), getModulePositions(),
-        new Pose2d(7.558, 4.010, new Rotation2d(-90)));
+    poseEstimator.resetPosition(CoordinateConverter.convertToAllianceRotation(new Rotation2d(-90)),
+        getModulePositions(),
+        CoordinateConverter.convertToAllianceCoordinates(new Pose2d(7.558, 4.010, new Rotation2d(-90))));
 
     configureAutoBuilder();
 
@@ -187,7 +189,7 @@ public class DrivetrainIO extends SubsystemBase {
     // we need to start at this offset otherwise our axis are reversed
     // note: docs say gyro should increase counterclockwise. ours decreases. may
     // need to look into this.
-    gyro.setAngleAdjustment(-90);
+    gyro.setAngleAdjustment(CoordinateConverter.convertToAllianceRotation(Rotation2d.fromDegrees(-90)).getDegrees());
     SmartDashboard.putString("[Drivetrain]Gyro has been reset", java.time.LocalTime.now().toString());
     System.out.println("Gyro has been reset");
   }

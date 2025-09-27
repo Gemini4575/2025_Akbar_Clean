@@ -5,36 +5,38 @@ import static frc.robot.Constants.SwerveConstants.MaxMetersPersecond;
 import java.util.Map;
 import java.util.TreeMap;
 
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.model.PathContainer;
 import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
-// TODO we need to handle alliance colors somewhere
-
 public class DriveToLocation extends Command {
 
     private static final double TURN_PRECISION = 5 * Math.PI / 180;
     private static final double MAX_SPEED_GLOBAL = 1.0;
+    private static final double LASER_GUIDED_SPEED = 0.1;
     private static final TreeMap<Double, Double> MAX_SPEEDS = new TreeMap<>(
             Map.of(0.0, 0.1, 0.2, 0.2, 0.5, 0.25, 1.5, 1.0));
 
-    private static final double MAX_ANGULAR_SPEED = Math.PI; // radians per second
+    private static final double MAX_ANGULAR_SPEED = Math.PI / 2; // radians per second
 
     private static final double DRIVE_PRECISION = 0.05; // meters
 
     private final PathContainer pathContainer;
     private final DrivetrainIO driveSubsystem;
+    private final LaserCan laserCan;
 
     private int segmentIdx = 0;
+    private boolean laserGuidedDrive = false;
 
     private final Field2d targetField = new Field2d();
 
-    public DriveToLocation(DrivetrainIO driveSubsystem, PathContainer pathContainer) {
+    public DriveToLocation(DrivetrainIO driveSubsystem, LaserCan laserCan, PathContainer pathContainer) {
         this.driveSubsystem = driveSubsystem;
+        this.laserCan = laserCan;
         this.pathContainer = pathContainer;
 
         initialize();
@@ -45,7 +47,7 @@ public class DriveToLocation extends Command {
     @Override
     public void initialize() {
         segmentIdx = 0;
-        targetField.setRobotPose(pathContainer.getWaypoints().get(0));
+        targetField.setRobotPose(pathContainer.getWaypoint(0));
         SmartDashboard.putData("[DriveToLocation] Target Pose", targetField);
     }
 
@@ -62,38 +64,50 @@ public class DriveToLocation extends Command {
         var currentPose = driveSubsystem.getPose();
         Double currentPoseX = currentPose.getX();
         Double currentPoseY = currentPose.getY();
-        var targetPose = pathContainer.getWaypoints().get(segmentIdx);
+        var targetPose = pathContainer.getWaypoint(segmentIdx);
         Double targetPoseX = targetPose.getX();
         Double targetPoseY = targetPose.getY();
 
         var distanceFromTarget = getDistanceFromTarget();
-        double maxSpeed = getMaxSpeed(distanceFromTarget);
 
-        Double xDiff = targetPose.getX() - currentPose.getX();
-        Double yDiff = targetPose.getY() - currentPose.getY();
-        Double maxDiff = Math.max(Math.abs(xDiff), Math.abs(yDiff));
-        Double xSpeed = (xDiff / maxDiff) * maxSpeed;
-        Double ySpeed = (yDiff / maxDiff) * maxSpeed;
+        // if we are already using laser distance, or if we are close enough to target
+        // to start using it...
+        if (laserGuidedDrive || (distanceFromTarget.getFirst() < DRIVE_PRECISION
+                && !isDistanceCloseEnough(distanceFromTarget.getFirst()))) {
+            // we are close enough to be guided by laser distance
+            // TODO we need to parametrize these values but testing for now
+            laserGuidedDrive = true;
+            driveSubsystem.drive(0, LASER_GUIDED_SPEED, 0, false);
+        } else {
 
-        Double rotationDiff = distanceFromTarget.getSecond();
+            double maxSpeed = getMaxSpeed(distanceFromTarget);
 
-        double rotationSpeed = calcAngularSpeed(rotationDiff,
-                calcRemainingTime(distanceFromTarget.getFirst(), maxSpeed));
+            Double xDiff = targetPose.getX() - currentPose.getX();
+            Double yDiff = targetPose.getY() - currentPose.getY();
+            Double maxDiff = Math.max(Math.abs(xDiff), Math.abs(yDiff));
+            Double xSpeed = (xDiff / maxDiff) * maxSpeed;
+            Double ySpeed = (yDiff / maxDiff) * maxSpeed;
 
-        if (distanceFromTarget.getFirst() < DRIVE_PRECISION) {
-            // stop moving if we reach close enough to target
-            xSpeed = 0.0;
-            ySpeed = 0.0;
+            Double rotationDiff = distanceFromTarget.getSecond();
+
+            double rotationSpeed = calcAngularSpeed(rotationDiff,
+                    calcRemainingTime(distanceFromTarget.getFirst(), maxSpeed));
+
+            if (isDistanceCloseEnough(distanceFromTarget.getFirst())) {
+                // stop moving if we reach close enough to target
+                xSpeed = 0.0;
+                ySpeed = 0.0;
+            }
+
+            driveSubsystem.log(currentPoseX.toString() + ","
+                    + currentPoseY.toString() + ","
+                    + targetPoseX.toString() + ","
+                    + targetPoseY.toString() + ","
+                    + xDiff.toString() + ","
+                    + yDiff.toString() + ",");
+
+            driveSubsystem.drive(xSpeed, ySpeed, rotationSpeed, true);
         }
-
-        driveSubsystem.log(currentPoseX.toString() + ","
-                + currentPoseY.toString() + ","
-                + targetPoseX.toString() + ","
-                + targetPoseY.toString() + ","
-                + xDiff.toString() + ","
-                + yDiff.toString() + ",");
-
-        driveSubsystem.drive(xSpeed, ySpeed, rotationSpeed, true);
     }
 
     private Double getMaxSpeed(Pair<Double, Double> distanceFromTarget) {
@@ -107,7 +121,7 @@ public class DriveToLocation extends Command {
 
     private boolean locationNeedsToBePrecise() {
         // slow down for last segment
-        return segmentIdx == pathContainer.getWaypoints().size() - 1;
+        return segmentIdx == pathContainer.getNumWaypoints() - 1;
     }
 
     @Override
@@ -116,20 +130,32 @@ public class DriveToLocation extends Command {
         SmartDashboard.putNumber("DriveToLocation - Distance", distance.getFirst());
         SmartDashboard.putNumber("DriveToLocation - Angular Distance", distance.getSecond());
 
-        if (segmentIdx < pathContainer.getWaypoints().size() - 1) {
-            if (distance.getFirst() < DRIVE_PRECISION) {
+        if (segmentIdx < pathContainer.getNumWaypoints() - 1) {
+            if (isDistanceCloseEnough(distance.getFirst())) {
                 segmentIdx++;
-                targetField.setRobotPose(pathContainer.getWaypoints().get(segmentIdx));
+                laserGuidedDrive = false;
+                targetField.setRobotPose(pathContainer.getWaypoint(segmentIdx));
             }
             return false;
         }
-        return distance.getFirst() < DRIVE_PRECISION // Finish when within 10 cm of target
+        return isDistanceCloseEnough(distance.getFirst())
                 && Math.abs(distance.getSecond()) < TURN_PRECISION; // within 5 degrees
+    }
+
+    private boolean isDistanceCloseEnough(double distance) {
+        if (laserGuidedDrive || distance < DRIVE_PRECISION) {
+            Double laserDistance = pathContainer.getLaserDistance(segmentIdx);
+            if (laserDistance == null || laserCan == null) {
+                return true;
+            }
+            return Math.abs(laserDistance - (laserCan.getMeasurement().distance_mm / 1000.0)) < DRIVE_PRECISION;
+        }
+        return false;
     }
 
     private Pair<Double, Double> getDistanceFromTarget() {
         var pose = driveSubsystem.getPose();
-        var targetPose = pathContainer.getWaypoints().get(segmentIdx);
+        var targetPose = pathContainer.getWaypoint(segmentIdx);
         var rawAngularDiff = targetPose.getRotation().getRadians() - pose.getRotation().getRadians();
         var optimizedAngularDiff = optimizeAngle(rawAngularDiff);
         return Pair.of(pose.getTranslation().getDistance(targetPose.getTranslation()),

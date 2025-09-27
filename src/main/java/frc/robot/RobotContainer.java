@@ -43,6 +43,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import au.grapplerobotics.ConfigurationFailedException;
+import au.grapplerobotics.LaserCan;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -79,11 +82,15 @@ public class RobotContainer {
   private final OzzyGrabberSubsystem g = new OzzyGrabberSubsystem();
   private final Vision V = new Vision();
 
+  private final LaserCan lc;
+
   private final Field2d autoRobotPose = new Field2d();
   private final Field2d autoTargetPose = new Field2d();
   private final Field2d autoPath = new Field2d();
 
   public RobotContainer() {
+    lc = initializeLaserCan();
+
     NamedCommands.registerCommand("Drop Coral", new LiAutoPlaceCoral(c));
     NamedCommands.registerCommand("Drop and Close Coral", new LIPlaceCoralSlow(c));
     NamedCommands.registerCommand("Close Door", new EXOCloseGate(c));
@@ -102,6 +109,18 @@ public class RobotContainer {
     PathfindingCommand.warmupCommand().schedule();
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  private LaserCan initializeLaserCan() {
+    LaserCan lc = new LaserCan(1);
+    try {
+      lc.setRangingMode(LaserCan.RangingMode.SHORT);
+      lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+    } catch (ConfigurationFailedException e) {
+      System.out.println("Laser CanConfiguration failed! " + e);
+    }
+    return lc;
   }
 
   private void configureBindings() {
@@ -128,11 +147,11 @@ public class RobotContainer {
     /* driver */
 
     new JoystickButton(driver, YELLOW_BUTTON)
-        .onTrue(new DriveToLocation(D,
+        .onTrue(new DriveToLocation(D, lc,
             new PathContainer()
-                .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(-90)))
-                .addWaypoint(new Pose2d(7.5, 3.5, Rotation2d.fromDegrees(-45)))
-                .addWaypoint(new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90)))));
+                .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))
+                // .addWaypoint(new Pose2d(7.5, 3.5, Rotation2d.fromDegrees(-45)))
+                .addWaypoint(new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90)), 0.23)));
 
     System.out.println("Ended configureBindings()");
   }
@@ -140,6 +159,7 @@ public class RobotContainer {
   public void Periodic() {
     updateVisionEst();
     overallPoseEstimate.setRobotPose(D.getPose());
+    SmartDashboard.putNumber("LaserCan Distance", lc.getMeasurement().distance_mm / 1000.0);
   }
 
   public void teleopPeriodic() {

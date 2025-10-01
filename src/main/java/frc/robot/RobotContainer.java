@@ -31,6 +31,7 @@ import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
 import frc.robot.model.PathContainer;
+import frc.robot.subsystems.Lidar;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
 import frc.robot.subsystems.OzzyGrabberSubsystem;
@@ -83,6 +84,7 @@ public class RobotContainer {
   private final NickClimbingSubsystem nc = new NickClimbingSubsystem();
   private final OzzyGrabberSubsystem g = new OzzyGrabberSubsystem();
   private final Vision V = new Vision();
+  private final Lidar lidar = new Lidar();
 
   private final LaserCan lc;
 

@@ -1,0 +1,43 @@
+package frc.robot.commands.driving;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
+
+public class TimedTestDrive extends Command {
+
+    private final long durationMillis;
+    private final double speed;
+    private final DrivetrainIO driveTrain;
+
+    private long startTime;
+    private Pose2d initialPose;
+
+    public TimedTestDrive(DrivetrainIO driveTrain, long durationMillis, double speed) {
+        this.durationMillis = durationMillis;
+        this.speed = speed;
+        this.driveTrain = driveTrain;
+        addRequirements(driveTrain);
+    }
+
+    @Override
+    public void initialize() {
+        startTime = System.currentTimeMillis();
+        initialPose = driveTrain.getPose();
+    }
+
+    @Override
+    public void execute() {
+        driveTrain.drive(speed, 0, 0, false);
+        SmartDashboard.putNumber("[TimedTestDrive] drive time", System.currentTimeMillis() - startTime);
+        SmartDashboard.putNumber("[TimedTestDrive] estimated distance",
+                initialPose.getTranslation().getDistance(driveTrain.getPose().getTranslation()));
+    }
+
+    @Override
+    public boolean isFinished() {
+        return System.currentTimeMillis() - startTime >= durationMillis;
+    }
+
+}

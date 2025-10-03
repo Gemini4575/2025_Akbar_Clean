@@ -29,7 +29,7 @@ import frc.robot.Constants.SwerveConstants;
 public class SwerveModule extends SubsystemBase {
 
     private ProfiledPIDController turningPidController = new ProfiledPIDController(
-            3.5, // Proportional gain
+            3.1, // Proportional gain
             0.0, // Integral gain
             0.01,
             new TrapezoidProfile.Constraints(

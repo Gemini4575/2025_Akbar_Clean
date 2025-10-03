@@ -19,7 +19,11 @@ public class Lidar extends SubsystemBase {
     @Override
     public void periodic() {
         super.periodic();
-        SmartDashboard.putNumber("Lidar", m_LIDAR.getPeriod() * 1000000.0 / 10.0);
+        SmartDashboard.putNumber("Lidar", getDistanceMeters());
+    }
+
+    public double getDistanceMeters() {
+        return m_LIDAR.getPeriod() * 1000000.0 / 1000.0;
     }
 
 }

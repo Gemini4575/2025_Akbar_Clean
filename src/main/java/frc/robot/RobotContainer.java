@@ -30,6 +30,7 @@ import frc.robot.commands.driving.DriveToLocation;
 import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
+import frc.robot.commands.driving.TimedTestDrive;
 import frc.robot.model.PathContainer;
 import frc.robot.subsystems.Lidar;
 import frc.robot.subsystems.LiliCoralSubystem;
@@ -152,6 +153,9 @@ public class RobotContainer {
 
     new JoystickButton(driver, YELLOW_BUTTON)
         .onTrue(new DropOne(D, lc, c, START_TO_REEF_FRONT_LEFT));
+
+    new JoystickButton(driver, GREEN_BUTTON)
+        .onTrue(new TimedTestDrive(D, lidar, 3000, 0.40));
     // new DriveToLocation(D, lc,
     // new PathContainer()
     // .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))

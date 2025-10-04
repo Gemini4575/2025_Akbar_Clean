@@ -28,6 +28,8 @@ import frc.robot.Constants.SwerveConstants;
 
 public class SwerveModule extends SubsystemBase {
 
+    private static final double DISTANCE_CORRECTION_FACTOR = 0.97;
+
     private ProfiledPIDController turningPidController = new ProfiledPIDController(
             3.1, // Proportional gain
             0.0, // Integral gain
@@ -164,7 +166,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         // encode is % rotations
-        var retVal = 1.0
+        var retVal = DISTANCE_CORRECTION_FACTOR
                 * ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
                         * Math.PI); // distance
 

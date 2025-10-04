@@ -155,7 +155,7 @@ public class RobotContainer {
         .onTrue(new DropOne(D, lc, c, START_TO_REEF_FRONT_LEFT));
 
     new JoystickButton(driver, GREEN_BUTTON)
-        .onTrue(new TimedTestDrive(D, lidar, 3000, 0.40));
+        .onTrue(new TimedTestDrive(D, lidar, 2000, 1.00));
     // new DriveToLocation(D, lc,
     // new PathContainer()
     // .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))

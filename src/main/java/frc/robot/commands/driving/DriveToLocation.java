@@ -27,7 +27,7 @@ public class DriveToLocation extends Command {
     private static final double DRIVE_PRECISION = 0.05; // meters
     private static final double LASER_DRIVING_STUCK_THRESHOLD = 0.5; // meters
 
-    private static final int VISION_DELAY_TOLERANCE = 500; // milliseconds
+    private static final int VISION_DELAY_TOLERANCE = 50000; // milliseconds - dont use for now
     private static final double VISION_CORRECTION = 0.2; // multiplier for time driven without vision vs time with
                                                          // vision
 
@@ -213,8 +213,9 @@ public class DriveToLocation extends Command {
                 return true;
             }
             // detect if we are stuck and not moving
-            double laserDrivenDistance = laserGuidedStartingPoint.getTranslation()
-                    .getDistance(driveSubsystem.getPose().getTranslation());
+            double laserDrivenDistance = laserGuidedStartingPoint == null ? 0
+                    : laserGuidedStartingPoint.getTranslation()
+                            .getDistance(driveSubsystem.getPose().getTranslation());
             return laserDrivenDistance > LASER_DRIVING_STUCK_THRESHOLD
                     || Math.abs(laserDistance - (laserCan.getMeasurement().distance_mm / 1000.0)) < DRIVE_PRECISION;
         }

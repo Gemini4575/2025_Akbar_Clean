@@ -113,8 +113,8 @@ public final class Constants {
 
                 /** Back Right Module - Module 3 */
                 public static final class Mod3 {
-                        public static final int driveMotorID = 7;
-                        public static final int angleMotorID = 8;
+                        public static final int driveMotorID = 8;
+                        public static final int angleMotorID = 7;
                         public static final int canCoderID = 3;
                         public static final double angleOffset = 4.486767475102027 - Math.PI;
                         public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID,

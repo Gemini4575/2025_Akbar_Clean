@@ -18,10 +18,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.JoystickConstants;
 import frc.robot.commands.algea.EXO.OzDown;
 import frc.robot.commands.algea.EXO.OzUp;
+import frc.robot.commands.auto.AutoCommandFactory;
 import frc.robot.commands.auto.DropOne;
 import frc.robot.commands.coral.lili.AUTOCoral;
 import frc.robot.commands.coral.lili.AUTOCoralFalse;
 import frc.robot.commands.coral.lili.EXOCloseGate;
+import frc.robot.commands.coral.lili.EXOCloseGateSlow;
 import frc.robot.commands.coral.lili.LIPlaceCoral;
 import frc.robot.commands.coral.lili.LIPlaceCoralSlow;
 import frc.robot.commands.coral.lili.LiAutoPlaceCoral;
@@ -77,7 +79,8 @@ public class RobotContainer {
       .or(new JoystickButton(operator, START_BUTTON));
 
   /* Pathplanner stuff */
-  private final SendableChooser<Command> PathplannerautoChoosers;
+  // private final SendableChooser<Command> PathplannerautoChoosers;
+  private final SendableChooser<Command> autoChooser;
 
   /* Subsystems */
   private final DrivetrainIO D = new DrivetrainIO();
@@ -104,8 +107,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("Wheels", new AlineWheels(D));
     NamedCommands.registerCommand("Stop", new Stop(D));
 
-    PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
+    // PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
+    autoChooser = new AutoCommandFactory(D, lc, c).generateAutoOptions();
+    SmartDashboard.putData("[Robot]Auto Chosers", autoChooser);
 
     configureLogging();
 
@@ -151,11 +155,14 @@ public class RobotContainer {
 
     /* driver */
 
-    new JoystickButton(driver, YELLOW_BUTTON)
-        .onTrue(new DropOne(D, lc, c, START_TO_REEF_FRONT_LEFT));
+    new JoystickButton(driver, BLUE_BUTTON)
+        .onTrue(new EXOCloseGateSlow(c));
 
-    new JoystickButton(driver, GREEN_BUTTON)
-        .onTrue(new TimedTestDrive(D, lidar, 2000, 1.00));
+    // new JoystickButton(driver, YELLOW_BUTTON)
+    // .onTrue(new DropOne(D, lc, c, START_TO_REEF_FRONT_LEFT));
+
+    // new JoystickButton(driver, GREEN_BUTTON)
+    // .onTrue(new TimedTestDrive(D, lidar, 2000, 1.00));
     // new DriveToLocation(D, lc,
     // new PathContainer()
     // .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))
@@ -244,7 +251,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return PathplannerautoChoosers.getSelected();
+    return autoChooser.getSelected();
   }
 }

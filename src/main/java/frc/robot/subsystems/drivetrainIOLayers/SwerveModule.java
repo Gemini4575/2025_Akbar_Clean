@@ -65,8 +65,10 @@ public class SwerveModule extends SubsystemBase {
 
     private static final boolean STUCK_PROTECTION_ENABLED = true;
     private static final long ANGLE_STUCK_TIME_THRESHOLD_MS = 300;
+    private static final long ANGLE_CORRECTION_TIME_THRESHOLD_MS = 50;
     private static final double ANGLE_DIVERGENCE_TOLERANCE = 7.0 * Math.PI / 180.0; // radians
     private long angleDivergenceStartTime = -1;
+    private long angleCorrectionStartTime = -1;
 
     public SwerveModule(SwerveModuleConstants s) {
         driveMotor = new SparkMax(s.driveMotorID, MotorType.kBrushless);
@@ -217,18 +219,25 @@ public class SwerveModule extends SubsystemBase {
             angleDivergenceStartTime = System.currentTimeMillis();
         } else if (currentDivergence <= ANGLE_DIVERGENCE_TOLERANCE) {
             angleDivergenceStartTime = -1;
+            angleCorrectionStartTime = -1;
         }
         boolean stuck = angleDivergenceStartTime != -1
                 && System.currentTimeMillis() - angleDivergenceStartTime > ANGLE_STUCK_TIME_THRESHOLD_MS;
-        SmartDashboard.putBoolean("[Swerve] stuck detector", stuck);
+        if (stuck && angleCorrectionStartTime == -1) {
+            angleCorrectionStartTime = System.currentTimeMillis();
+        }
+        SmartDashboard.putBoolean("[Swerve] stuck detector " + moduleNumber, stuck);
         if (STUCK_PROTECTION_ENABLED && stuck) {
             // if stuck, turn 90 degrees away from where we were trying to turn
             state.angle = Rotation2d
                     .fromRadians(currentAngle + (currentAngle > state.angle.getRadians() ? 1.0 : -1.0) * Math.PI / 2.0);
             state.speedMetersPerSecond = 0.0;
-            // reset the timer so we don't keep doing this.. may need to adjust this in the
-            // future
-            angleDivergenceStartTime = -1;
+            if (System.currentTimeMillis() - angleCorrectionStartTime > ANGLE_CORRECTION_TIME_THRESHOLD_MS) {
+                // reset the timer so we don't keep doing this.. may need to adjust this in the
+                // future
+                angleDivergenceStartTime = -1;
+                angleCorrectionStartTime = -1;
+            }
         }
 
         final double turnOutput = turningPidController.calculate(currentAngle, state.angle.getRadians());

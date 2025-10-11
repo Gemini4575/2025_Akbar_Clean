@@ -18,7 +18,7 @@ public class DriveToLocation extends Command {
 
     private static final double TURN_PRECISION = 5 * Math.PI / 180;
     private static final double MAX_SPEED_GLOBAL = 1.0;
-    private static final double LASER_GUIDED_SPEED = 0.1;
+    private static final double LASER_GUIDED_SPEED = 0.2;
     private static final TreeMap<Double, Double> MAX_SPEEDS = new TreeMap<>(
             Map.of(0.0, 0.1, 0.2, 0.4, 0.5, 0.7, 1.5, 1.0));
 
@@ -185,8 +185,16 @@ public class DriveToLocation extends Command {
             }
             return false;
         }
-        return isDistanceCloseEnough(distance.getFirst())
-                && Math.abs(distance.getSecond()) < TURN_PRECISION; // within 5 degrees
+        boolean finished = isDistanceCloseEnough(distance.getFirst())
+                && (laserGuidedDrive || Math.abs(distance.getSecond()) < TURN_PRECISION);
+
+        if (finished && laserGuidedDrive) {
+            // in this scenario, estimated pose was probably wrong so we should update it
+            // with where we expect to be
+            driveSubsystem.resetPose(pathContainer.getWaypoint(segmentIdx));
+        }
+
+        return finished;
     }
 
     private boolean isVisionDriftAcceptable() {

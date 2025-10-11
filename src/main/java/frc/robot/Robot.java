@@ -80,6 +80,14 @@ public class Robot extends TimedRobot {
     }
   }
 
+  @Override
+  public void autonomousExit() {
+    super.autonomousExit();
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
+  }
+
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {

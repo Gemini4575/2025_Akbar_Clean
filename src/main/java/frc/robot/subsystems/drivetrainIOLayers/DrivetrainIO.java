@@ -106,7 +106,7 @@ public class DrivetrainIO extends SubsystemBase {
         getModulePositions(),
         CoordinateConverter.convertToAllianceCoordinates(new Pose2d(7.558, 4.010, new Rotation2d(-90))));
 
-    configureAutoBuilder();
+    // configureAutoBuilder();
 
     setpointGenerator = new SwerveSetpointGenerator(
         config,
@@ -169,10 +169,14 @@ public class DrivetrainIO extends SubsystemBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MaxMetersPersecond);
 
     SmartDashboard.putString("[Drivetrain]gyro", gyro.getRotation2d().toString());
-    SmartDashboard.putString("[Drivetrain]module 0", swerveModuleStates[0].toString());
-    SmartDashboard.putString("[Drivetrain]module 1", swerveModuleStates[1].toString());
-    SmartDashboard.putString("[Drivetrain]module 2", swerveModuleStates[2].toString());
-    SmartDashboard.putString("[Drivetrain]module 3", swerveModuleStates[3].toString());
+    // SmartDashboard.putString("[Drivetrain]module 0",
+    // swerveModuleStates[0].toString());
+    // SmartDashboard.putString("[Drivetrain]module 1",
+    // swerveModuleStates[1].toString());
+    // SmartDashboard.putString("[Drivetrain]module 2",
+    // swerveModuleStates[2].toString());
+    // SmartDashboard.putString("[Drivetrain]module 3",
+    // swerveModuleStates[3].toString());
 
     setModuleStates(swerveModuleStates);
   }

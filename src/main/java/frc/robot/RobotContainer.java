@@ -5,8 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -19,7 +17,6 @@ import frc.robot.Constants.JoystickConstants;
 import frc.robot.commands.algea.EXO.OzDown;
 import frc.robot.commands.algea.EXO.OzUp;
 import frc.robot.commands.auto.AutoCommandFactory;
-import frc.robot.commands.auto.DropOne;
 import frc.robot.commands.coral.lili.AUTOCoral;
 import frc.robot.commands.coral.lili.AUTOCoralFalse;
 import frc.robot.commands.coral.lili.EXOCloseGate;
@@ -28,12 +25,9 @@ import frc.robot.commands.coral.lili.LIPlaceCoral;
 import frc.robot.commands.coral.lili.LIPlaceCoralSlow;
 import frc.robot.commands.coral.lili.LiAutoPlaceCoral;
 import frc.robot.commands.driving.AlineWheels;
-import frc.robot.commands.driving.DriveToLocation;
 import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
-import frc.robot.commands.driving.TimedTestDrive;
-import frc.robot.model.PathContainer;
 import frc.robot.subsystems.Lidar;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
@@ -42,12 +36,8 @@ import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 import frc.robot.subsystems.Vision;
 
 import static frc.robot.Constants.JoystickConstants.*;
-import static frc.robot.LocationData.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.util.PathPlannerLogging;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
@@ -92,10 +82,6 @@ public class RobotContainer {
 
   private final LaserCan lc;
 
-  private final Field2d autoRobotPose = new Field2d();
-  private final Field2d autoTargetPose = new Field2d();
-  private final Field2d autoPath = new Field2d();
-
   public RobotContainer() {
     lc = initializeLaserCan();
 
@@ -111,11 +97,9 @@ public class RobotContainer {
     autoChooser = new AutoCommandFactory(D, lc, c).generateAutoOptions();
     SmartDashboard.putData("[Robot]Auto Chosers", autoChooser);
 
-    configureLogging();
-
     SmartDashboard.putData("[Robot]Vision Pose Estimate", visionPoseEstimate);
     SmartDashboard.putData("[Robot]Overall Pose Estimate", overallPoseEstimate);
-    PathfindingCommand.warmupCommand().schedule();
+    // PathfindingCommand.warmupCommand().schedule();
     // Configure the trigger bindings
     configureBindings();
   }
@@ -189,8 +173,9 @@ public class RobotContainer {
     } else {
       g.stop();
     }
-    // c.JoyControll(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS));
-    g.joy(MathUtil.applyDeadband(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS), 0.5) * 1);
+    c.JoyControll(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS));
+    // g.joy(MathUtil.applyDeadband(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS),
+    // 0.5) * 1);
     // g.joy1(MathUtil.applyDeadband(climber.getRawAxis(JoystickConstants.LEFT_Y_AXIS),
     // 0.2));
     if (climber.getRawButton(GREEN_BUTTON)) {
@@ -211,30 +196,6 @@ public class RobotContainer {
       nc.Flipper(0);
     }
 
-  }
-
-  private void configureLogging() {
-    SmartDashboard.putData("[Robot]Auto Robot Pose", autoRobotPose);
-    SmartDashboard.putData("[Robot]Auto Target Pose", autoTargetPose);
-    SmartDashboard.putData("[Robot]Auto Path", autoPath);
-
-    // Logging callback for current robot pose
-    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-      // Do whatever you want with the pose here
-      autoRobotPose.setRobotPose(pose);
-    });
-
-    // Logging callback for target robot pose
-    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-      // Do whatever you want with the pose here
-      autoTargetPose.setRobotPose(pose);
-    });
-
-    // Logging callback for the active path, this is sent as a list of poses
-    PathPlannerLogging.setLogActivePathCallback((poses) -> {
-      // Do whatever you want with the poses here
-      autoPath.getObject("Path").setPoses(poses);
-    });
   }
 
   private void updateVisionEst() {

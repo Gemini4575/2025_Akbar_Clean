@@ -26,7 +26,7 @@ import frc.robot.subsystems.drivetrainIOLayers.DrivetrainIO;
 
 public class AutoCommandFactory {
 
-    private static final boolean USE_CORAL = false;
+    private static final boolean USE_CORAL = true;
 
     private final LiliCoralSubystem coralSubystem;
     private final DrivetrainIO drivetrainIO;

@@ -281,9 +281,9 @@ public class DrivetrainIO extends SubsystemBase {
     var gyroRot = gyro.getRotation2d();
     var modulePos = getModulePositions();
     poseEstimator.update(gyroRot, modulePos);
-    try {
-      var pose = poseEstimator.getEstimatedPosition();
-      if (shouldLogToFile) {
+    if (shouldLogToFile) {
+      try {
+        var pose = poseEstimator.getEstimatedPosition();
         logFileWriter
             .write(System.currentTimeMillis() + "," + gyroRot.getDegrees() + "," + modulePos[0].distanceMeters + ","
                 + modulePos[0].angle.getDegrees() + ","
@@ -293,10 +293,11 @@ public class DrivetrainIO extends SubsystemBase {
                 + "," + modulePos[3].angle.getDegrees() + "," + pose.getX() + "," + pose.getY() + ","
                 + pose.getRotation().getDegrees() + ","
                 + incomingLog + "\n");
+
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
     }
 
     SmartDashboard.putNumber("Vision Update delay", visionUpdateDelayMillis());

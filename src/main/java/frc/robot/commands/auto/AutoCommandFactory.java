@@ -1,12 +1,16 @@
 package frc.robot.commands.auto;
 
+import static frc.robot.LocationData.REEF_BACK_ANY_TO_STATION_LEFT;
 import static frc.robot.LocationData.REEF_FRONT_TO_STATION_LEFT;
+import static frc.robot.LocationData.REEF_FRONT_TO_STATION_RIGHT;
 import static frc.robot.LocationData.REEF_LEFT_TO_STATION_LEFT;
+import static frc.robot.LocationData.REEF_RIGHT_TO_STATION_RIGHT;
 import static frc.robot.LocationData.START_TO_REEF_FRONT;
 import static frc.robot.LocationData.START_TO_REEF_FRONT_LEFT;
 import static frc.robot.LocationData.START_TO_REEF_FRONT_RIGHT;
 import static frc.robot.LocationData.STATION_ANY_TO_REEF_BACK_CENTER;
 import static frc.robot.LocationData.STATION_LEFT_TO_REEF_BACK_LEFT;
+import static frc.robot.LocationData.STATION_RIGHT_TO_REEF_BACK_RIGHT;
 
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -48,7 +52,8 @@ public class AutoCommandFactory {
 
     private Command dropTwoFrontCenterBackLeft() {
         return new SequentialCommandGroup(drive(START_TO_REEF_FRONT), placeCoral(), drive(REEF_FRONT_TO_STATION_LEFT),
-                pickupCoral(), drive(STATION_LEFT_TO_REEF_BACK_LEFT), placeCoral());
+                pickupCoral(), drive(STATION_LEFT_TO_REEF_BACK_LEFT), placeCoral(),
+                drive(REEF_BACK_ANY_TO_STATION_LEFT), pickupCoral());
     }
 
     private Command dropTwoFrontCenterBackCenterLeftStation() {
@@ -59,12 +64,35 @@ public class AutoCommandFactory {
     private Command dropTwoFrontLeftBackLeft() {
         return new SequentialCommandGroup(drive(START_TO_REEF_FRONT_LEFT), placeCoral(),
                 drive(REEF_LEFT_TO_STATION_LEFT),
-                pickupCoral(), drive(STATION_LEFT_TO_REEF_BACK_LEFT), placeCoral());
+                pickupCoral(), drive(STATION_LEFT_TO_REEF_BACK_LEFT), placeCoral(),
+                drive(REEF_BACK_ANY_TO_STATION_LEFT), pickupCoral());
     }
 
     private Command dropTwoFrontLeftBackCenter() {
         return new SequentialCommandGroup(drive(START_TO_REEF_FRONT_LEFT), placeCoral(),
                 drive(REEF_LEFT_TO_STATION_LEFT),
+                pickupCoral(), drive(STATION_ANY_TO_REEF_BACK_CENTER), placeCoral());
+    }
+
+    private Command dropTwoFrontCenterBackRight() {
+        return new SequentialCommandGroup(drive(START_TO_REEF_FRONT), placeCoral(), drive(REEF_FRONT_TO_STATION_RIGHT),
+                pickupCoral(), drive(STATION_RIGHT_TO_REEF_BACK_RIGHT), placeCoral());
+    }
+
+    private Command dropTwoFrontCenterBackCenterRightStation() {
+        return new SequentialCommandGroup(drive(START_TO_REEF_FRONT), placeCoral(), drive(REEF_FRONT_TO_STATION_RIGHT),
+                pickupCoral(), drive(STATION_ANY_TO_REEF_BACK_CENTER), placeCoral());
+    }
+
+    private Command dropTwoFrontRightBackRight() {
+        return new SequentialCommandGroup(drive(START_TO_REEF_FRONT_RIGHT), placeCoral(),
+                drive(REEF_RIGHT_TO_STATION_RIGHT),
+                pickupCoral(), drive(STATION_RIGHT_TO_REEF_BACK_RIGHT), placeCoral());
+    }
+
+    private Command dropTwoFrontRightBackCenter() {
+        return new SequentialCommandGroup(drive(START_TO_REEF_FRONT_RIGHT), placeCoral(),
+                drive(REEF_RIGHT_TO_STATION_RIGHT),
                 pickupCoral(), drive(STATION_ANY_TO_REEF_BACK_CENTER), placeCoral());
     }
 
@@ -89,6 +117,10 @@ public class AutoCommandFactory {
         chooser.addOption("[2] Center - Left Station - Center Back", dropTwoFrontCenterBackCenterLeftStation());
         chooser.addOption("[2] Left - Left Station - Left Back", dropTwoFrontLeftBackLeft());
         chooser.addOption("[2] Left - Left Station - Center Back", dropTwoFrontLeftBackCenter());
+        chooser.addOption("[2] Center - Right Station - Right Back", dropTwoFrontCenterBackRight());
+        chooser.addOption("[2] Center - Right Station - Center Back", dropTwoFrontCenterBackCenterRightStation());
+        chooser.addOption("[2] Right - Right Station - Right Back", dropTwoFrontRightBackRight());
+        chooser.addOption("[2] Right - Right Station - Center Back", dropTwoFrontRightBackCenter());
         return chooser;
     }
 

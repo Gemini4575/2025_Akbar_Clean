@@ -30,8 +30,8 @@ public class LocationData {
 
     public static final PathContainer START_TO_REEF_FRONT_RIGHT = new PathContainer()
             .addWaypoint(new Pose2d(
-                    6.025,
-                    5.047, REEF_FRONT_RIGHT.getRotation()))
+                    5.705,
+                    5.200, REEF_FRONT_RIGHT.getRotation()))
             .addWaypoint(REEF_FRONT_RIGHT, LASER_OFFSET);
 
     public static final PathContainer REEF_FRONT_TO_STATION_LEFT = new PathContainer()
@@ -49,13 +49,13 @@ public class LocationData {
     public static final PathContainer REEF_LEFT_TO_STATION_LEFT = new PathContainer()
             .addWaypoint(new Pose2d(
                     4.4,
-                    2.3, CORAL_STATION_LEFT.getRotation()))
+                    2.2, CORAL_STATION_LEFT.getRotation()))
             .addWaypoint(CORAL_STATION_LEFT, LASER_OFFSET);
 
     public static final PathContainer REEF_RIGHT_TO_STATION_RIGHT = new PathContainer()
             .addWaypoint(new Pose2d(
-                    4.598,
-                    5.918, CORAL_STATION_RIGHT.getRotation()))
+                    4.4,
+                    5.850, CORAL_STATION_RIGHT.getRotation()))
             .addWaypoint(CORAL_STATION_RIGHT, LASER_OFFSET);
 
     public static final PathContainer STATION_LEFT_TO_REEF_BACK_LEFT = new PathContainer()

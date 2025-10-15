@@ -28,6 +28,7 @@ import frc.robot.commands.driving.AlineWheels;
 import frc.robot.commands.driving.Spin180;
 import frc.robot.commands.driving.Stop;
 import frc.robot.commands.driving.TeleopSwerve;
+import frc.robot.commands.driving.TimedTestDrive;
 import frc.robot.subsystems.Lidar;
 import frc.robot.subsystems.LiliCoralSubystem;
 import frc.robot.subsystems.NickClimbingSubsystem;
@@ -78,7 +79,7 @@ public class RobotContainer {
   private final NickClimbingSubsystem nc = new NickClimbingSubsystem();
   private final OzzyGrabberSubsystem g = new OzzyGrabberSubsystem();
   private final Vision V = new Vision();
-  private final Lidar lidar = new Lidar();
+  // private final Lidar lidar = new Lidar();
 
   private final LaserCan lc;
 
@@ -145,8 +146,8 @@ public class RobotContainer {
     // new JoystickButton(driver, YELLOW_BUTTON)
     // .onTrue(new DropOne(D, lc, c, START_TO_REEF_FRONT_LEFT));
 
-    // new JoystickButton(driver, GREEN_BUTTON)
-    // .onTrue(new TimedTestDrive(D, lidar, 2000, 1.00));
+    new JoystickButton(driver, GREEN_BUTTON)
+        .onTrue(new TimedTestDrive(D, 2000, 0.5));
     // new DriveToLocation(D, lc,
     // new PathContainer()
     // .addWaypoint(new Pose2d(7.5, 5.5, Rotation2d.fromDegrees(45)))

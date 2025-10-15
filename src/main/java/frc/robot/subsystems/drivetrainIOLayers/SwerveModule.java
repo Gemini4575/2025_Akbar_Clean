@@ -57,10 +57,6 @@ public class SwerveModule extends SubsystemBase {
 
     private double angleOffset;
 
-    private double distance = 0;
-    private double previousPosition = 0;
-    private double wheelDirection = 1.0;
-
     private int moduleNumber;
 
     private static final boolean STUCK_PROTECTION_ENABLED = true;
@@ -105,11 +101,6 @@ public class SwerveModule extends SubsystemBase {
         if (RobotState.isTest()) {
             SmartDashboard.putNumber("[Swerve]encoder raw " + moduleNumber, getRawAngle());
         }
-
-        double newPosition = m_driveEncoder.getPosition();
-        distance += wheelDirection * Math.abs(newPosition - previousPosition);
-        previousPosition = newPosition;
-
     }
 
     private double encoderValue() {
@@ -151,11 +142,11 @@ public class SwerveModule extends SubsystemBase {
      *
      * @return The current state of the module.
      */
-    public SwerveModuleState getState() {
-        var s = getConvertedVelocity();
-        return new SwerveModuleState(
-                s, new Rotation2d(encoderValue()));
-    }
+    // public SwerveModuleState getState() {
+    // var s = getConvertedVelocity();
+    // return new SwerveModuleState(
+    // s, new Rotation2d(encoderValue()));
+    // }
 
     private double getConvertedVelocity() {
         return (m_driveEncoder.getVelocity() / (60.0 * SwerveConstants.gearboxRatio))
@@ -177,8 +168,6 @@ public class SwerveModule extends SubsystemBase {
                 * ((m_driveEncoder.getPosition() / SwerveConstants.gearboxRatio) * (SwerveConstants.kWheelRadius * 2)
                         * Math.PI); // distance
 
-        SmartDashboard.putNumber("[Swerve]distance " + moduleNumber, distance);
-
         // in
         // whatever
         // units
@@ -191,19 +180,17 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void SetDesiredState(SwerveModuleState desiredState) {
-        SmartDashboard.putNumber("Speed " + moduleNumber, getCurrentSpeedAsPercentage());
+        double currentSpeedPercentage = getCurrentSpeedAsPercentage();
+        double currentAngle = encoderValue();
+
+        SmartDashboard.putNumber("Speed " + moduleNumber, currentSpeedPercentage);
         SmartDashboard.putNumber("[Swerve]Pre Optimize angle target degrees " + moduleNumber,
                 desiredState.angle.getDegrees());
         // Optimize the reference state to avoid spinning further than 90 degrees
-        SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, encoderValue());
-
-        var delta = desiredState.angle.minus(new Rotation2d(encoderValue()));
-        if (Math.abs(delta.getDegrees()) > 90.0) {
-            wheelDirection *= -1;
-        }
+        SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, currentAngle);
 
         @SuppressWarnings("deprecation")
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(encoderValue()));
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(currentAngle));
 
         SmartDashboard.putNumber("[Swerve]After Optimize angle target degrees " + moduleNumber,
                 state.angle.getDegrees());
@@ -212,7 +199,6 @@ public class SwerveModule extends SubsystemBase {
         // drivingPidController.calculate(m_driveEncoder.getVelocity(),
         // state.speedMetersPerSecond);
 
-        double currentAngle = encoderValue();
         double currentDivergence = Math.abs(Rotation2d.fromRadians(state.angle.getRadians())
                 .minus(Rotation2d.fromRadians(currentAngle)).getRadians());
         if (currentDivergence > ANGLE_DIVERGENCE_TOLERANCE && angleDivergenceStartTime == -1) {
@@ -247,8 +233,9 @@ public class SwerveModule extends SubsystemBase {
 
         SmartDashboard.putNumber("[Swerve]Setpoint velocity", turningPidController.getSetpoint().velocity);
 
-        final double driveOutput = m_drivePIDController.calculate(getCurrentSpeedAsPercentage(),
-                state.speedMetersPerSecond) * state.angle.minus(Rotation2d.fromRadians(encoderValue())).getCos();
+        final double driveOutput = m_drivePIDController.calculate(
+                currentSpeedPercentage,
+                state.speedMetersPerSecond) * state.angle.minus(Rotation2d.fromRadians(currentAngle)).getCos();
         driveMotor.set(driveOutput);
 
         angleMotor.set((turnOutput / Math.PI));
@@ -259,12 +246,12 @@ public class SwerveModule extends SubsystemBase {
                 turnOutput / SwerveConstants.kModuleMaxAngularVelocity);
 
         SmartDashboard.putNumber("[Swerve]m_driveMotor actual" + moduleNumber, getConvertedVelocity());
-        SmartDashboard.putNumber("[Swerve]m_driveMotor velocity" + moduleNumber, getCurrentSpeedAsPercentage());
+        SmartDashboard.putNumber("[Swerve]m_driveMotor velocity" + moduleNumber, currentSpeedPercentage);
         SmartDashboard.putNumber("[Swerve]m_driveMotor get" + moduleNumber, driveMotor.get());
         SmartDashboard.putNumber("[Swerve]m_turningMotor actual" + moduleNumber, angleMotor.get());
 
         SmartDashboard.putNumber("[Swerve]drive encoder" + moduleNumber, m_driveEncoder.getPosition());
-        SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, encoderValue());
+        SmartDashboard.putNumber("[Swerve]turn encoder" + moduleNumber, currentAngle);
 
         SmartDashboard.putNumber("[Swerve]turnOutput", turnOutput);
         // SmartDashboard.putNumber("[Swerve]Drive", ((driveOutput + driveFeedforward)

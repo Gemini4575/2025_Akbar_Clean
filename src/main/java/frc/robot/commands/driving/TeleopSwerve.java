@@ -64,7 +64,7 @@ public class TeleopSwerve extends Command {
                 double xSpeed = MathUtil.applyDeadband(m_xSpeedSupplier.getAsDouble(), 0.1);
                 double ySpeed = -MathUtil.applyDeadband(m_ySpeedSupplier.getAsDouble(), 0.1);
                 double rot = MathUtil.applyDeadband(m_rotSupplier.getAsDouble(), 0.1);
-                m_drivetrain.drive(xSpeed * 1, ySpeed * 1, rot * 1, true);
+                m_drivetrain.drive(xSpeed * 1, ySpeed * 1, rot * 2, true);
             }
         } else {
             m_drivetrain.driveRobotRelative(dpadCalculator());

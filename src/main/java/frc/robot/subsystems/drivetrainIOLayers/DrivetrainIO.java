@@ -12,6 +12,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.util.CoordinateConverter;
@@ -187,7 +189,9 @@ public class DrivetrainIO extends SubsystemBase {
     // we need to start at this offset otherwise our axis are reversed
     // note: docs say gyro should increase counterclockwise. ours decreases. may
     // need to look into this.
-    gyro.setAngleAdjustment(CoordinateConverter.convertToAllianceRotation(Rotation2d.fromDegrees(-90)).getDegrees());
+    // gyro.setAngleAdjustment(CoordinateConverter.convertToAllianceRotation(Rotation2d.fromDegrees(-90)).getDegrees());
+    gyro.setAngleAdjustment(DriverStation.getAlliance().get() == Alliance.Red ? 
+      Rotation2d.fromDegrees(-90).getDegrees() : Rotation2d.fromDegrees(-90).getDegrees());
     SmartDashboard.putString("[Drivetrain]Gyro has been reset", java.time.LocalTime.now().toString());
     System.out.println("Gyro has been reset");
   }
@@ -214,7 +218,7 @@ public class DrivetrainIO extends SubsystemBase {
   // // Configure AutoBuilder last
   // AutoBuilder.configure(
   // this::getPose, // Robot pose supplier
-  // this::resetPose, // Method to reset odometry (will be called if your auto
+  // this::resetPose, // Method to reset odometry (will be called if your auto 
   // hasa starting pose)
   // this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT
   // RELATIVE

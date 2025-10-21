@@ -2,6 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.model.PathContainer;
 
 public class LocationData {
@@ -10,6 +13,7 @@ public class LocationData {
 
     // points of interest
     public static final Pose2d REEF_FRONT = new Pose2d(5.721, 4.0259, Rotation2d.fromDegrees(90));
+    public static final Pose2d RED_REEF_FRONT = new Pose2d(11.840, 4.010, Rotation2d.fromDegrees(90));
     public static final Pose2d REEF_FRONT_LEFT = new Pose2d(5.124, 2.928, Rotation2d.fromDegrees(30));
     public static final Pose2d REEF_FRONT_RIGHT = new Pose2d(5.139, 5.107, Rotation2d.fromDegrees(150));
     public static final Pose2d REEF_BACK = new Pose2d(3.231, 4.055, Rotation2d.fromDegrees(-90));
@@ -20,7 +24,7 @@ public class LocationData {
 
     // paths
     public static final PathContainer START_TO_REEF_FRONT = new PathContainer()
-            .addWaypoint(REEF_FRONT, LASER_OFFSET);
+            .addWaypoint(DriverStation.getAlliance().get() == Alliance.Red ? RED_REEF_FRONT : REEF_FRONT, LASER_OFFSET);
 
     public static final PathContainer START_TO_REEF_FRONT_LEFT = new PathContainer()
             .addWaypoint(new Pose2d(

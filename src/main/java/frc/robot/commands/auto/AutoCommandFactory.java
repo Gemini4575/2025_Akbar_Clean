@@ -39,7 +39,7 @@ public class AutoCommandFactory {
     }
 
     private Command dropOneCenter() {
-        return new SequentialCommandGroup(drive(START_TO_REEF_FRONT), placeCoral());
+        return new SequentialCommandGroup(new WaitCommand(3), drive(START_TO_REEF_FRONT), placeCoral());
     }
 
     private Command dropOneLeft() {

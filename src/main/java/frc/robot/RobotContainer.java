@@ -174,7 +174,7 @@ public class RobotContainer {
     } else {
       g.stop();
     }
-    c.JoyControll(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS));
+    c.JoyControll(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS) * .25);
     // g.joy(MathUtil.applyDeadband(operator.getRawAxis(JoystickConstants.LEFT_Y_AXIS),
     // 0.5) * 1);
     // g.joy1(MathUtil.applyDeadband(climber.getRawAxis(JoystickConstants.LEFT_Y_AXIS),

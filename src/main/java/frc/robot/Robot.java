@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private final RobotContainer m_robotContainer;
+  private RobotContainer m_robotContainer = null;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -28,6 +28,11 @@ public class Robot extends TimedRobot {
    */
   public Robot() {
     CanBridge.runTCP();
+  }
+
+  @Override
+  public void driverStationConnected() {
+    super.driverStationConnected();
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
@@ -46,7 +51,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    m_robotContainer.Periodic();
+    if (m_robotContainer != null) {
+      m_robotContainer.Periodic();
+    }
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled
     // commands, running already-scheduled commands, removing finished or
@@ -72,11 +79,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    if (m_robotContainer != null) {
+      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+      // schedule the autonomous command (example)
+      if (m_autonomousCommand != null) {
+        m_autonomousCommand.schedule();
+      }
     }
   }
 
@@ -107,7 +116,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    m_robotContainer.teleopPeriodic();
+    if (m_robotContainer != null) {
+      m_robotContainer.teleopPeriodic();
+    }
   }
 
   @Override
